@@ -46,42 +46,38 @@ class ofApp : public ofBaseApp{
 	// ##############################
 	// ##########   ofxGui    #######
 	// ##############################
-
 	ofxPanel gui;
-		// Grupo Parametros carga de video
-		ofxGuiGroup parametrosManejadorVideo;
-		ofParameter<std::string> nombreVideoTxtInput;
-		ofxButton cargar;
+	// Grupo Parametros carga de video
+	ofxGuiGroup parametrosManejadorVideo;
+	ofParameter<std::string> nombreVideoTxtInput;
+	ofxButton cargar;
 
-		// Grupo Parametros tipo de figura y smoothing
-		ofxGuiGroup parametrosTipoFigura;
-		ofxButton cubosButton;
-		void cubosButtonPressed();
-		ofxButton prismasButton;
-		void prismasButtonPressed();
-		ofxButton esferasButton;
-		void esferasButtonPressed();
-		void actualizarTipoFigura(Figura::enumTipoFigura);
-		ofxFloatSlider factorSmoothing;
-		void factorSmoothingChanged(float &factor);
-		ofxIntSlider desordenInicialSlider;
-		void desordenInicialSliderChanged(int &desorden);
-		ofxIntSlider distanciaEntreBloques;
-		void distanciaEntreBloquesChanged(int &distancia);
+	// Grupo Parametros tipo de figura y smoothing
+	ofxGuiGroup parametrosTipoFigura;
+	ofxButton cubosButton;
+	void cubosButtonPressed();
+	ofxButton prismasButton;
+	void prismasButtonPressed();
+	ofxButton esferasButton;
+	void esferasButtonPressed();
+	void actualizarTipoFigura(Figura::enumTipoFigura);
+	ofxFloatSlider factorSmoothing;
+	void factorSmoothingChanged(float &factor);
+	ofxIntSlider desordenInicialSlider;
+	void desordenInicialSliderChanged(int &desorden);
+	ofxIntSlider distanciaEntreBloques;
+	void distanciaEntreBloquesChanged(int &distancia);
 
-
-
-		// Grupo parametros de instrucciones
-		ofxGuiGroup parametrosInstrucciones;
-		ofxLabel instrucciones;
-		ofxLabel instrucciones2;
-		ofxLabel instrucciones3;
-		ofxLabel instrucciones4;
-		ofxLabel instrucciones5;
-		ofxLabel instrucciones6;
-		ofxLabel instrucciones7;
-		ofxLabel instrucciones9;
-
+	// Grupo parametros de instrucciones
+	ofxGuiGroup parametrosInstrucciones;
+	ofxLabel instrucciones;
+	ofxLabel instrucciones2;
+	ofxLabel instrucciones3;
+	ofxLabel instrucciones4;
+	ofxLabel instrucciones5;
+	ofxLabel instrucciones6;
+	ofxLabel instrucciones7;
+	ofxLabel instrucciones9;
 	// ##############################
 	// ##############################
 	// ##############################

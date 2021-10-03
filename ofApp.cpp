@@ -27,7 +27,6 @@ void ofApp::setup(){
     parametrosTipoFigura.add(desordenInicialSlider.setup("Desorden inicial", 0, 0, 10));
     parametrosTipoFigura.add(distanciaEntreBloques.setup("Distancia entre bloques", 0, 0, 100));
     
-    
     // Setup GUI - Instrucciones
     parametrosInstrucciones.setup("Instrucciones");
     const string instrString = "Instrucciones:";
