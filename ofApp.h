@@ -66,7 +66,12 @@ class ofApp : public ofBaseApp{
 	ofxIntSlider desordenInicialSlider;
 	void desordenInicialSliderChanged(int &desorden);
 	ofxIntSlider distanciaEntreBloques;
+
+	ofxGuiGroup parametrosFactorTamanoPorBrillo;
 	void distanciaEntreBloquesChanged(int &distancia);
+	ofxToggle tamanoPorBrillo;
+	ofxFloatSlider tamanoPorBrilloMinimo;
+	ofxFloatSlider tamanoPorBrilloMaximo;
 
 	// Grupo parametros de instrucciones
 	ofxGuiGroup parametrosInstrucciones;

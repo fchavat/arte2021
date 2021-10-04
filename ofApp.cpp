@@ -26,6 +26,19 @@ void ofApp::setup(){
     parametrosTipoFigura.add(esferasButton.setup("Esferas"));
     parametrosTipoFigura.add(desordenInicialSlider.setup("Desorden inicial", 0, 0, 10));
     parametrosTipoFigura.add(distanciaEntreBloques.setup("Distancia entre bloques", 0, 0, 100));
+
+    parametrosFactorTamanoPorBrillo.setup("Parametros tamano segun brillo");
+    parametrosFactorTamanoPorBrillo.add(tamanoPorBrillo.setup("Tamano segun brillo", false));
+    parametrosFactorTamanoPorBrillo.add(tamanoPorBrilloMinimo.setup("Tamano minimo", 0.5, 0.1, 5));
+    parametrosFactorTamanoPorBrillo.add(tamanoPorBrilloMaximo.setup("Tamano minimo", tamanoPorBrilloMinimo, tamanoPorBrilloMinimo, 10));
+    parametrosTipoFigura.add(&parametrosFactorTamanoPorBrillo);
+    
+
+    // ofxGuiGroup parametrosFactorTamanoPorBrillo;
+	// void distanciaEntreBloquesChanged(int &distancia);
+	// ofxToggle tamanoPorBrillo;
+	// ofxFloatSlider tamanoPorBrilloMinimo;
+	// ofxFloatSlider tamanoPorBrilloMaximo;
     
     // Setup GUI - Instrucciones
     parametrosInstrucciones.setup("Instrucciones");
@@ -170,7 +183,7 @@ void ofApp::draw(){
                 float G = framePixels[indexBase+1];
                 float B = framePixels[indexBase+2];
                 // float brightness = 0.2126 * R + 0.7152 * G + 0.0722 * B;
-                sistemaFiguras[i][j].draw(R,G,B);
+                sistemaFiguras[i][j].draw(R, G, B, tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
             }
         }
     ofDisableDepthTest();
