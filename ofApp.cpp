@@ -17,21 +17,25 @@ void ofApp::setup(){
     prismasButton.addListener(this, &ofApp::prismasButtonPressed);
     esferasButton.addListener(this, &ofApp::esferasButtonPressed);
     factorSmoothing.addListener(this, &ofApp::factorSmoothingChanged);
+    factorColorSmoothing.addListener(this, &ofApp::factorColorSmoothingChanged);
     desordenInicialSlider.addListener(this, &ofApp::desordenInicialSliderChanged);
     distanciaEntreBloques.addListener(this, &ofApp::distanciaEntreBloquesChanged);
-    parametrosTipoFigura.setup("Figuras, Smoothing y otros");
-    parametrosTipoFigura.add(factorSmoothing.setup("Vel. cambio", 0.5, 0.01, 1));
+    parametrosAtributosFigura.setup("Figuras, Smoothing y otros");
+    parametrosTipoFigura.setup("Tipo de figura");
     parametrosTipoFigura.add(cubosButton.setup("Cubos"));
     parametrosTipoFigura.add(prismasButton.setup("Prismas"));
     parametrosTipoFigura.add(esferasButton.setup("Esferas"));
-    parametrosTipoFigura.add(desordenInicialSlider.setup("Desorden inicial", 0, 0, 10));
-    parametrosTipoFigura.add(distanciaEntreBloques.setup("Distancia entre bloques", 0, 0, 100));
+    parametrosAtributosFigura.add(&parametrosTipoFigura);
+    parametrosAtributosFigura.add(factorSmoothing.setup("Velocidad smooth movimiento", 0.5, 0.01, 1));
+    parametrosAtributosFigura.add(factorColorSmoothing.setup("Velocidad smooth color", 0.5, 0.01, 1));
+    parametrosAtributosFigura.add(desordenInicialSlider.setup("Desorden inicial", 0, 0, 10));
+    parametrosAtributosFigura.add(distanciaEntreBloques.setup("Distancia entre bloques", 0, 0, 100));
 
     parametrosFactorTamanoPorBrillo.setup("Parametros tamano segun brillo");
     parametrosFactorTamanoPorBrillo.add(tamanoPorBrillo.setup("Tamano segun brillo", false));
     parametrosFactorTamanoPorBrillo.add(tamanoPorBrilloMinimo.setup("Tamano minimo", 0.5, 0.1, 5));
     parametrosFactorTamanoPorBrillo.add(tamanoPorBrilloMaximo.setup("Tamano minimo", tamanoPorBrilloMinimo, tamanoPorBrilloMinimo, 10));
-    parametrosTipoFigura.add(&parametrosFactorTamanoPorBrillo);
+    parametrosAtributosFigura.add(&parametrosFactorTamanoPorBrillo);
     
 
     // ofxGuiGroup parametrosFactorTamanoPorBrillo;
@@ -62,7 +66,7 @@ void ofApp::setup(){
     gui.setup();
     gui.setSize(480, 600);
     gui.add(&parametrosManejadorVideo);
-    gui.add(&parametrosTipoFigura);
+    gui.add(&parametrosAtributosFigura);
     gui.add(&parametrosInstrucciones);
 
     cargarVideo();
@@ -115,6 +119,14 @@ void ofApp::factorSmoothingChanged(float &factor) {
     for (int i = 0; i < filas; i++) {
         for (int j = 0; j < columnas; j++) {
             sistemaFiguras[i][j].updateFactorSmoothing(factor);
+        }
+    }
+}
+
+void ofApp::factorColorSmoothingChanged(float &factor) {
+    for (int i = 0; i < filas; i++) {
+        for (int j = 0; j < columnas; j++) {
+            sistemaFiguras[i][j].updateFactorColorSmoothing(factor);
         }
     }
 }

@@ -29,6 +29,7 @@ Figura::Figura(ofVec3f pos, int tamano, int rangoProfundidad, float factorSmooth
   this->profActual = this->profObjetivo = 0;
   this->factorSmoothing = factorSmoothing;
   this->tipoFigura = tipoFigura;
+  this->colorObjetivo = ofColor(0,0,0,0);
 }
 
 void Figura::draw(float brightness) {
@@ -44,20 +45,25 @@ void Figura::draw(float brightness) {
 
 void Figura::draw(float R, float G, float B, bool tamanoPorBrillo, float tamanoPorBrilloMinimo, float tamanoPorBrilloMaximo) {
   this->actualizarProfActual();
-    float brightness = 0.2126 * R + 0.7152 * G + 0.0722 * B;
-    ofSetColor(R,G,B);
-    float profObjetivo = ofMap(brightness, 0, 255, -this->rangoProfundidad, this->rangoProfundidad);
-    float tamanoActual = ofMap(brightness, 0, 255, 1, tamano);
-    this->actualizarProfObjetivo(profObjetivo);
-    float profBloque = this->profActual;
-    float factorTamanoBrillo = ofMap(brightness, 0, 255, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
-    float factorTamano = ofMap(profBloque, -this->rangoProfundidad, this->rangoProfundidad, 1, 3);
-    ofVec3f pos = ofVec3f(this->posActual.x, this->posActual.y, profBloque);
-    if (tamanoPorBrillo) {
-      this->dibujarFigura(pos, this->tamano*factorTamanoBrillo);
-    } else {
-      this->dibujarFigura(pos, this->tamano);
-    }
+  this->actualizarColorActual();
+  float brightness = 0.2126 * R + 0.7152 * G + 0.0722 * B;
+  // ofSetColor(R,G,B);
+  this->colorObjetivo = ofColor(R,G,B);
+  ofSetColor(this->colorActual);
+
+  float nuevaProfObjetivo = ofMap(brightness, 0, 255, -this->rangoProfundidad, this->rangoProfundidad);
+  this->profObjetivo = nuevaProfObjetivo;
+  
+  float tamanoActual = ofMap(brightness, 0, 255, 1, tamano);
+  float profBloque = this->profActual;
+  float factorTamanoBrillo = ofMap(brightness, 0, 255, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
+  float factorTamano = ofMap(profBloque, -this->rangoProfundidad, this->rangoProfundidad, 1, 3);
+  ofVec3f pos = ofVec3f(this->posActual.x, this->posActual.y, profBloque);
+  if (tamanoPorBrillo) {
+    this->dibujarFigura(pos, this->tamano*factorTamanoBrillo);
+  } else {
+    this->dibujarFigura(pos, this->tamano);
+  }
 }
 
 void Figura::dibujarFigura(ofVec3f pos, float size) {
@@ -83,8 +89,17 @@ void Figura::actualizarProfActual() {
   } else if (modoMovimiento == SMOOTH)
   {
     this->profActual = this->profActual + (this->profObjetivo - this->profActual)*factorSmoothing;
+    this->colorActual = this->colorActual.lerp(this->colorObjetivo, this->factorSmoothing);
   }
   
+}
+
+void Figura::actualizarColorActual() {
+  this->colorActual = this->colorActual.lerp(this->colorObjetivo, this->factorColorSmoothing);
+}
+
+void Figura::updateFactorColorSmoothing(float factor) {
+  this->factorColorSmoothing = factor;
 }
 
 void Figura::updateFactorSmoothing(float factor) {
@@ -93,10 +108,6 @@ void Figura::updateFactorSmoothing(float factor) {
 
 void Figura::updateTipoFigura(enumTipoFigura tipo) {
   this->tipoFigura = tipo;
-}
-
-void Figura::actualizarProfObjetivo(float nuevaProfundidad) {
-  this->profObjetivo = nuevaProfundidad;
 }
 
 void Figura::updateProfundidadMaxima(int prof) {

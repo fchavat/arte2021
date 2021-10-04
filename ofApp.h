@@ -53,6 +53,7 @@ class ofApp : public ofBaseApp{
 	ofxButton cargar;
 
 	// Grupo Parametros tipo de figura y smoothing
+	ofxGuiGroup parametrosAtributosFigura;
 	ofxGuiGroup parametrosTipoFigura;
 	ofxButton cubosButton;
 	void cubosButtonPressed();
@@ -63,6 +64,8 @@ class ofApp : public ofBaseApp{
 	void actualizarTipoFigura(Figura::enumTipoFigura);
 	ofxFloatSlider factorSmoothing;
 	void factorSmoothingChanged(float &factor);
+	ofxFloatSlider factorColorSmoothing;
+	void factorColorSmoothingChanged(float &factor);
 	ofxIntSlider desordenInicialSlider;
 	void desordenInicialSliderChanged(int &desorden);
 	ofxIntSlider distanciaEntreBloques;

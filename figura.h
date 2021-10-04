@@ -22,6 +22,7 @@ class Figura{
 		void updateProfundidadMaxima(int prof);
     void updateTamano(int tamano);
     void updateFactorSmoothing(float factor);
+    void updateFactorColorSmoothing(float factor);
     void updateTipoFigura(enumTipoFigura tipo);
 		void draw(float brightness);		
     void draw(float R, float G, float B, bool tamanoPorBrillo = false, float tamanoPorBrilloMinimo=0.5, float tamanoPorBrilloMaximo=2);
@@ -36,10 +37,13 @@ class Figura{
     // Para el movimiento de las figuras
     int profActual;
     int profObjetivo;
+    ofColor colorActual;
+    ofColor colorObjetivo;
 
     //  smoothing
     enumModoMovimiento modoMovimiento = SMOOTH;
     float factorSmoothing = 0.5;
+    float factorColorSmoothing = 1;
 
     // Tipo de figura
     enumTipoFigura tipoFigura = CUBO;
@@ -49,4 +53,5 @@ class Figura{
   private:
     void actualizarProfObjetivo(float nuevaProfundidad);
     void actualizarProfActual();
+    void actualizarColorActual();
 };
