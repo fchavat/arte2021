@@ -25,7 +25,7 @@ class Figura{
     void updateFactorColorSmoothing(float factor);
     void updateTipoFigura(enumTipoFigura tipo);
 		void draw(float brightness);		
-    void draw(float R, float G, float B, bool tamanoPorBrillo = false, float tamanoPorBrilloMinimo=0.5, float tamanoPorBrilloMaximo=2);
+    void draw(float R, float G, float B, float A, bool tamanoPorBrillo = false, float tamanoPorBrilloMinimo=0.5, float tamanoPorBrilloMaximo=2);
 		
 		ofVec3f posActual;
     ofVec3f posObjetivo;

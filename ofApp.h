@@ -33,14 +33,11 @@ class ofApp : public ofBaseApp{
 	ofVideoPlayer movie;
 	ofVideoPlayer videoPlayer;
 
-	int profundidad = 100;
+	ofParameter<int> profundidad = 100;
 	int zoom = 300;
-	float sizeFigura = 16;
-	ofVec3f lookAtNode = ofVec3f(ofGetWidth()/2, ofGetHeight()/2, 0);
-	ofVec3f camPosition = ofVec3f(ofGetWidth()/2, ofGetHeight()/2, 600);
-	unsigned char * framePixels;
+	ofPixels framePixels;
+	void profundidadChanged(int &profundidad);
 	bool bw = false;
-	bool lookAtCenter = true;
 	bool cubes = true;
 
 	// ##############################
@@ -55,6 +52,8 @@ class ofApp : public ofBaseApp{
 	// Grupo Parametros tipo de figura y smoothing
 	ofxGuiGroup parametrosAtributosFigura;
 	ofxGuiGroup parametrosTipoFigura;
+	ofxIntSlider sizeFigura;
+	void sizeFiguraChanged(int &sizeFigura);
 	ofxButton cubosButton;
 	void cubosButtonPressed();
 	ofxButton prismasButton;
@@ -75,6 +74,14 @@ class ofApp : public ofBaseApp{
 	ofxToggle tamanoPorBrillo;
 	ofxFloatSlider tamanoPorBrilloMinimo;
 	ofxFloatSlider tamanoPorBrilloMaximo;
+
+	// Grupo parametros para navegacion
+	ofxGuiGroup parametrosNavegacion;
+	ofParameter<float> navX;
+	ofParameter<float> navY;
+	ofParameter<float> navZ;
+	ofxToggle mouseNav;
+	ofxToggle lookAtCenter;
 
 	// Grupo parametros de instrucciones
 	ofxGuiGroup parametrosInstrucciones;

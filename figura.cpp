@@ -43,12 +43,12 @@ void Figura::draw(float brightness) {
   ofPopMatrix();
 }
 
-void Figura::draw(float R, float G, float B, bool tamanoPorBrillo, float tamanoPorBrilloMinimo, float tamanoPorBrilloMaximo) {
+void Figura::draw(float R, float G, float B, float A, bool tamanoPorBrillo, float tamanoPorBrilloMinimo, float tamanoPorBrilloMaximo) {
   this->actualizarProfActual();
   this->actualizarColorActual();
   float brightness = 0.2126 * R + 0.7152 * G + 0.0722 * B;
   // ofSetColor(R,G,B);
-  this->colorObjetivo = ofColor(R,G,B);
+  this->colorObjetivo = ofColor(R,G,B,A);
   ofSetColor(this->colorActual);
 
   float nuevaProfObjetivo = ofMap(brightness, 0, 255, -this->rangoProfundidad, this->rangoProfundidad);

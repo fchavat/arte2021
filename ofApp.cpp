@@ -13,6 +13,8 @@ void ofApp::setup(){
     parametrosManejadorVideo.add(cargar.setup("Cargar."));
 
     // Setup GUI - Figuras y Smoothing
+    sizeFigura.addListener(this, &ofApp::sizeFiguraChanged);
+    profundidad.addListener(this, &ofApp::profundidadChanged);
     cubosButton.addListener(this, &ofApp::cubosButtonPressed);
     prismasButton.addListener(this, &ofApp::prismasButtonPressed);
     esferasButton.addListener(this, &ofApp::esferasButtonPressed);
@@ -26,6 +28,8 @@ void ofApp::setup(){
     parametrosTipoFigura.add(prismasButton.setup("Prismas"));
     parametrosTipoFigura.add(esferasButton.setup("Esferas"));
     parametrosAtributosFigura.add(&parametrosTipoFigura);
+    parametrosAtributosFigura.add(sizeFigura.setup("Tamano figura", 8, 2, 32));
+    parametrosAtributosFigura.add(profundidad.set("Profundidad maxima", 0, -1000, 1000));
     parametrosAtributosFigura.add(factorSmoothing.setup("Velocidad smooth movimiento", 0.5, 0.01, 1));
     parametrosAtributosFigura.add(factorColorSmoothing.setup("Velocidad smooth color", 0.5, 0.01, 1));
     parametrosAtributosFigura.add(desordenInicialSlider.setup("Desorden inicial", 0, 0, 10));
@@ -34,47 +38,24 @@ void ofApp::setup(){
     parametrosFactorTamanoPorBrillo.setup("Parametros tamano segun brillo");
     parametrosFactorTamanoPorBrillo.add(tamanoPorBrillo.setup("Tamano segun brillo", false));
     parametrosFactorTamanoPorBrillo.add(tamanoPorBrilloMinimo.setup("Tamano minimo", 0.5, 0.1, 5));
-    parametrosFactorTamanoPorBrillo.add(tamanoPorBrilloMaximo.setup("Tamano minimo", tamanoPorBrilloMinimo, tamanoPorBrilloMinimo, 10));
+    parametrosFactorTamanoPorBrillo.add(tamanoPorBrilloMaximo.setup("Tamano maximo", tamanoPorBrilloMinimo, tamanoPorBrilloMinimo, 10));
     parametrosAtributosFigura.add(&parametrosFactorTamanoPorBrillo);
     
-
-    // ofxGuiGroup parametrosFactorTamanoPorBrillo;
-	// void distanciaEntreBloquesChanged(int &distancia);
-	// ofxToggle tamanoPorBrillo;
-	// ofxFloatSlider tamanoPorBrilloMinimo;
-	// ofxFloatSlider tamanoPorBrilloMaximo;
+    // Setup GUI - Navegacion
+    parametrosNavegacion.setup("Parametros para navegar");
+    parametrosNavegacion.add(mouseNav.setup("Navegar con mouse (M)", false));
+    parametrosNavegacion.add(lookAtCenter.setup("Centrar visual al centro (C)", false));
+    parametrosNavegacion.add(navX.set("Eje X", 100, -1500, 3000));
+    parametrosNavegacion.add(navY.set("Eje Y", 100, -1500, 3000));
+    parametrosNavegacion.add(navZ.set("Eje Z", 100, -1500, 3000));
     
-    // Setup GUI - Instrucciones
-    parametrosInstrucciones.setup("Instrucciones");
-    const string instrString = "Instrucciones:";
-    const string instrString2 = "+ - Aleja o acerca la camara";
-    const string instrString3 = "flecha arriba / abajo modifica profundidad";
-    const string instrString4 = "W / S mueve camara en eje Y";
-    const string instrString9 = "D / A mueve camara en eje X";
-    const string instrString5 = "C Activar/desactivar rotacion camara";
-    const string instrString6 = "B Activa/desactiva a modo blanco y negro";
-    const string instrString7 = "Click mouse en eje X Cambia el tamano de los cubos";
-    parametrosInstrucciones.add(instrucciones.setup(instrString));
-    parametrosInstrucciones.add(instrucciones2.setup(instrString2));
-    parametrosInstrucciones.add(instrucciones3.setup(instrString3));
-    parametrosInstrucciones.add(instrucciones4.setup(instrString4));
-    parametrosInstrucciones.add(instrucciones9.setup(instrString9));
-    parametrosInstrucciones.add(instrucciones5.setup(instrString5));
-    parametrosInstrucciones.add(instrucciones6.setup(instrString6));
-    parametrosInstrucciones.add(instrucciones7.setup(instrString7));
-
     gui.setup();
     gui.setSize(480, 600);
     gui.add(&parametrosManejadorVideo);
     gui.add(&parametrosAtributosFigura);
-    gui.add(&parametrosInstrucciones);
+    gui.add(&parametrosNavegacion);
 
     cargarVideo();
-
-    // Defino la posicion inicial de la camara centrada en el video.
-    camPosition.x = videoPlayer.getWidth() / 2;
-    camPosition.y = videoPlayer.getHeight() / 2;
-    cam.disableMouseInput();
 
     // Setup de sistema de figuras
     setupSistemaFiguras();
@@ -123,6 +104,14 @@ void ofApp::factorSmoothingChanged(float &factor) {
     }
 }
 
+void ofApp::sizeFiguraChanged(int &sizeFigura) {
+    setupSistemaFiguras();
+}
+
+void ofApp::profundidadChanged(int &profundidad) {
+    actualizarProfundidad();
+}
+
 void ofApp::factorColorSmoothingChanged(float &factor) {
     for (int i = 0; i < filas; i++) {
         for (int j = 0; j < columnas; j++) {
@@ -155,20 +144,23 @@ void ofApp::esferasButtonPressed() {
 }
 
 void ofApp::cargarVideo() {
+    videoPlayer.setPixelFormat(OF_PIXELS_RGBA);
     videoPlayer.load(nombreVideoTxtInput);
     videoPlayer.setVolume(0);
     videoPlayer.setUseTexture(true);
     videoPlayer.play();
-    camPosition.x = videoPlayer.getWidth() / 2;
-    camPosition.y = videoPlayer.getHeight() / 2;
-    cam.setPosition(camPosition);
+    
+    navX = videoPlayer.getWidth() / 2;
+    navY = videoPlayer.getHeight() / 2;
+    navZ = 1500;
     setupSistemaFiguras();
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
     videoPlayer.update();
-    framePixels = videoPlayer.getPixels().getData();
+    if (videoPlayer.isFrameNew())
+        framePixels = videoPlayer.getPixels();
     std::stringstream strm;
 	strm << "fps: " << ofGetFrameRate();
 	ofSetWindowTitle(strm.str());
@@ -177,8 +169,10 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofBackground(ofColor(0,0,0));
-    cam.setupPerspective();
-    cam.setPosition(camPosition);
+    if (!mouseNav) {
+        cam.setupPerspective();
+        cam.setPosition(ofVec3f(navX,navY,navZ));
+    }
     if (lookAtCenter) {
         cam.lookAt(ofVec3f(videoPlayer.getWidth()/2, videoPlayer.getHeight()/2, 0));
     }
@@ -190,12 +184,8 @@ void ofApp::draw(){
             for (int j=0; j<columnas; j++) {
                 int x = j*sizeFigura;
                 int y = i*sizeFigura;
-                int indexBase = y*videoPlayer.getWidth()*3 + x*3;
-                float R = framePixels[indexBase];
-                float G = framePixels[indexBase+1];
-                float B = framePixels[indexBase+2];
-                // float brightness = 0.2126 * R + 0.7152 * G + 0.0722 * B;
-                sistemaFiguras[i][j].draw(R, G, B, tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
+                ofColor color = framePixels.getColor(x, y);
+                sistemaFiguras[i][j].draw(color.r, color.g, color.b, color.a, tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
             }
         }
     ofDisableDepthTest();
@@ -221,27 +211,27 @@ void ofApp::keyPressed(int key){
     }
 
     if (key == '+') {
-        camPosition.z += 100;
+        navZ += 100;
     }
 
     if (key == '-') {
-        camPosition.z -= 100;
+        navZ -= 100;
     }
 
     if (key == 'd') {
-        camPosition.x += 100;
+        navX += 20;
     }
 
     if (key == 'a') {
-        camPosition.x -= 100;
+        navX -= 20;
     }
 
     if (key == 'w') {
-        camPosition.y -= 20;
+        navY -= 20;
     }
 
     if (key == 's') {
-        camPosition.y += 20;
+        navY += 20;
     }
 
     if (key == 'b') {
@@ -252,8 +242,8 @@ void ofApp::keyPressed(int key){
         lookAtCenter = !lookAtCenter;
     }
 
-    if (key == 'e') {
-        cubes = !cubes;
+    if (key == 'm') {
+        mouseNav = !mouseNav;
     }
 }
 //--------------------------------------------------------------
@@ -273,8 +263,6 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-    sizeFigura = ofMap(ofGetMouseX(), 0, ofGetWidth(), 4, 32, true);
-    setupSistemaFiguras();
 }
 
 //--------------------------------------------------------------
