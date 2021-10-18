@@ -49,7 +49,8 @@ class ofApp : public ofBaseApp{
 	// Grupo Parametros carga de video y guardar/cargar configuracion
 	ofxGuiGroup parametrosManejadorVideo;
 	ofParameter<std::string> nombreVideoTxtInput;
-	ofxButton cargar;
+	ofxButton cargarVideoButton;
+	void cargarVideoButtonPressed();
 	ofxButton guardarConfiguracion;
 	ofxButton cargarConfiguracion;
 

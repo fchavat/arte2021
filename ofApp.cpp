@@ -8,9 +8,9 @@ void ofApp::setup(){
     // Setup de la GUI
     // Setup GUI - Video
     parametrosManejadorVideo.setup("Manejo de video");
-    cargar.addListener(this, &ofApp::cargarVideo);
+    cargarVideoButton.addListener(this, &ofApp::cargarVideoButtonPressed);
     parametrosManejadorVideo.add(nombreVideoTxtInput.set("Nombre video:", "video.m4v"));
-    parametrosManejadorVideo.add(cargar.setup("Cargar video"));
+    parametrosManejadorVideo.add(cargarVideoButton.setup("Cargar video"));
     guardarConfiguracion.addListener(this, &ofApp::guardarPresetConfiguracion);
     cargarConfiguracion.addListener(this, &ofApp::cargarPresetConfiguracion);
     parametrosManejadorVideo.add(guardarConfiguracion.setup("Guardar configuracion (tecla s)"));
@@ -63,6 +63,15 @@ void ofApp::setup(){
 
     // Setup de sistema de figuras
     setupSistemaFiguras();
+}
+
+void ofApp::cargarVideoButtonPressed() {
+    ofFileDialogResult res;
+    res = ofSystemLoadDialog( "Cargar preset de configuracion" );
+    if ( res.bSuccess ) {
+        nombreVideoTxtInput = res.filePath;
+        cargarVideo();
+    }
 }
 
 void ofApp::guardarPresetConfiguracion() {
