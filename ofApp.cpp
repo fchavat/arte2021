@@ -10,7 +10,11 @@ void ofApp::setup(){
     parametrosManejadorVideo.setup("Manejo de video");
     cargar.addListener(this, &ofApp::cargarVideo);
     parametrosManejadorVideo.add(nombreVideoTxtInput.set("Nombre video:", "video.m4v"));
-    parametrosManejadorVideo.add(cargar.setup("Cargar."));
+    parametrosManejadorVideo.add(cargar.setup("Cargar video"));
+    guardarConfiguracion.addListener(this, &ofApp::guardarPresetConfiguracion);
+    cargarConfiguracion.addListener(this, &ofApp::cargarPresetConfiguracion);
+    parametrosManejadorVideo.add(guardarConfiguracion.setup("Guardar configuracion (tecla s)"));
+    parametrosManejadorVideo.add(cargarConfiguracion.setup("Cargar configuracion (tecla l)"));
 
     // Setup GUI - Figuras y Smoothing
     sizeFigura.addListener(this, &ofApp::sizeFiguraChanged);
@@ -59,6 +63,18 @@ void ofApp::setup(){
 
     // Setup de sistema de figuras
     setupSistemaFiguras();
+}
+
+void ofApp::guardarPresetConfiguracion() {
+    ofFileDialogResult res;
+    res = ofSystemSaveDialog("preset.xml", "Guardar preset de configuracion");
+    if ( res.bSuccess ) gui.saveToFile( res.filePath );
+}
+
+void ofApp::cargarPresetConfiguracion() {
+    ofFileDialogResult res;
+    res = ofSystemLoadDialog( "Cargar preset de configuracion" );
+    if ( res.bSuccess ) gui.loadFromFile( res.filePath );
 }
 
 void ofApp::setupSistemaFiguras() {
@@ -244,6 +260,12 @@ void ofApp::keyPressed(int key){
 
     if (key == 'm') {
         mouseNav = !mouseNav;
+    }
+    if ( key == 's' ) {
+        guardarPresetConfiguracion();
+    }
+    if ( key == 'l' ) {
+        cargarPresetConfiguracion();
     }
 }
 //--------------------------------------------------------------

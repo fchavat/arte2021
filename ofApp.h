@@ -44,10 +44,14 @@ class ofApp : public ofBaseApp{
 	// ##########   ofxGui    #######
 	// ##############################
 	ofxPanel gui;
-	// Grupo Parametros carga de video
+	void cargarPresetConfiguracion();
+	void guardarPresetConfiguracion();
+	// Grupo Parametros carga de video y guardar/cargar configuracion
 	ofxGuiGroup parametrosManejadorVideo;
 	ofParameter<std::string> nombreVideoTxtInput;
 	ofxButton cargar;
+	ofxButton guardarConfiguracion;
+	ofxButton cargarConfiguracion;
 
 	// Grupo Parametros tipo de figura y smoothing
 	ofxGuiGroup parametrosAtributosFigura;
@@ -82,20 +86,6 @@ class ofApp : public ofBaseApp{
 	ofParameter<float> navZ;
 	ofxToggle mouseNav;
 	ofxToggle lookAtCenter;
-
-	// Grupo parametros de instrucciones
-	ofxGuiGroup parametrosInstrucciones;
-	ofxLabel instrucciones;
-	ofxLabel instrucciones2;
-	ofxLabel instrucciones3;
-	ofxLabel instrucciones4;
-	ofxLabel instrucciones5;
-	ofxLabel instrucciones6;
-	ofxLabel instrucciones7;
-	ofxLabel instrucciones9;
-	// ##############################
-	// ##############################
-	// ##############################
 
 	// Sistema de figuras independientes
 	int columnas;
