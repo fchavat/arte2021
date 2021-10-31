@@ -48,7 +48,8 @@ class ofApp : public ofBaseApp{
 	void guardarPresetConfiguracion();
 	// Grupo Parametros carga de video y guardar/cargar configuracion
 	ofxGuiGroup parametrosManejadorVideo;
-	ofParameter<std::string> nombreVideoTxtInput;
+	ofxLabel nombreVideoTxtInput;
+	// ofParameter<std::string> nombreVideoTxtInput;
 	ofxButton cargarVideoButton;
 	void cargarVideoButtonPressed();
 	ofxButton guardarConfiguracion;
@@ -72,10 +73,8 @@ class ofApp : public ofBaseApp{
 	void factorColorSmoothingChanged(float &factor);
 	ofxIntSlider desordenInicialSlider;
 	void desordenInicialSliderChanged(int &desorden);
-	ofxIntSlider distanciaEntreBloques;
 
 	ofxGuiGroup parametrosFactorTamanoPorBrillo;
-	void distanciaEntreBloquesChanged(int &distancia);
 	ofxToggle tamanoPorBrillo;
 	ofxFloatSlider tamanoPorBrilloMinimo;
 	ofxFloatSlider tamanoPorBrilloMaximo;

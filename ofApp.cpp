@@ -9,13 +9,12 @@ void ofApp::setup(){
     // Setup GUI - Video
     parametrosManejadorVideo.setup("Manejo de video");
     cargarVideoButton.addListener(this, &ofApp::cargarVideoButtonPressed);
-    parametrosManejadorVideo.add(nombreVideoTxtInput.set("Nombre video:", "video.m4v"));
+    parametrosManejadorVideo.add(nombreVideoTxtInput.setup("Nombre video:", "video.m4v"));
     parametrosManejadorVideo.add(cargarVideoButton.setup("Cargar video"));
     guardarConfiguracion.addListener(this, &ofApp::guardarPresetConfiguracion);
     cargarConfiguracion.addListener(this, &ofApp::cargarPresetConfiguracion);
     parametrosManejadorVideo.add(guardarConfiguracion.setup("Guardar configuracion (tecla s)"));
     parametrosManejadorVideo.add(cargarConfiguracion.setup("Cargar configuracion (tecla l)"));
-
     // Setup GUI - Figuras y Smoothing
     sizeFigura.addListener(this, &ofApp::sizeFiguraChanged);
     profundidad.addListener(this, &ofApp::profundidadChanged);
@@ -25,7 +24,6 @@ void ofApp::setup(){
     factorSmoothingSlider.addListener(this, &ofApp::factorSmoothingChanged);
     factorColorSmoothingSlider.addListener(this, &ofApp::factorColorSmoothingChanged);
     desordenInicialSlider.addListener(this, &ofApp::desordenInicialSliderChanged);
-    distanciaEntreBloques.addListener(this, &ofApp::distanciaEntreBloquesChanged);
     parametrosAtributosFigura.setup("Figuras, Smoothing y otros");
     parametrosTipoFigura.setup("Tipo de figura");
     parametrosTipoFigura.add(cubosButton.setup("Cubos"));
@@ -37,7 +35,6 @@ void ofApp::setup(){
     parametrosAtributosFigura.add(factorSmoothingSlider.setup("Velocidad smooth movimiento", 0.5, 0.01, 1));
     parametrosAtributosFigura.add(factorColorSmoothingSlider.setup("Velocidad smooth color", 0.5, 0.01, 1));
     parametrosAtributosFigura.add(desordenInicialSlider.setup("Desorden inicial", 0, 0, 10));
-    parametrosAtributosFigura.add(distanciaEntreBloques.setup("Distancia entre bloques", 0, 0, 100));
 
     parametrosFactorTamanoPorBrillo.setup("Parametros tamano segun brillo");
     parametrosFactorTamanoPorBrillo.add(tamanoPorBrillo.setup("Tamano segun brillo", false));
@@ -77,7 +74,14 @@ void ofApp::cargarVideoButtonPressed() {
 void ofApp::guardarPresetConfiguracion() {
     ofFileDialogResult res;
     res = ofSystemSaveDialog("preset.xml", "Guardar preset de configuracion");
-    if ( res.bSuccess ) gui.saveToFile( res.filePath );
+    if ( res.bSuccess ) {
+        gui.saveToFile( res.filePath );
+
+        // Ahora guardamos el path al video (a ofxGUI no le gusta guardar los ofxLabel :facepalm:)
+        std::ofstream file;
+        file.open(res.filePath, std::ios_base::app);
+        file << (string)nombreVideoTxtInput;
+    }
 }
 
 void ofApp::cargarPresetConfiguracion() {
@@ -85,6 +89,16 @@ void ofApp::cargarPresetConfiguracion() {
     res = ofSystemLoadDialog( "Cargar preset de configuracion" );
     if ( res.bSuccess ) {
         gui.loadFromFile( res.filePath );
+        // obtenemos aparte el path al video
+        std::ifstream conf(res.filePath);
+        if (conf.is_open()) {
+            std::string line;
+            while (std::getline(conf, line)) {}
+            // Asignamos el nombre del video a nombreVideoTxtInput
+            nombreVideoTxtInput = line;
+            conf.close();
+        }
+
         cargarVideo();
     }
 }
@@ -97,9 +111,7 @@ void ofApp::setupSistemaFiguras() {
     for (int i = 0; i < filas; i++) {
         std::vector<Figura> fila;
         for (int j = 0; j < columnas; j++) {
-            int offsetDistX = (j+1)*distanciaEntreBloques;
-            int offsetDistY = (i+1)*distanciaEntreBloques;
-            ofVec3f posicion = ofVec3f(j*sizeFigura+(random()/(RAND_MAX/((int)desordenInicialSlider+1)))+offsetDistX, i*sizeFigura+(random()/(RAND_MAX/((int)desordenInicialSlider+1)))+offsetDistY, 0);
+            ofVec3f posicion = ofVec3f(j*sizeFigura+(random()/(RAND_MAX/((int)desordenInicialSlider+1))), i*sizeFigura+(random()/(RAND_MAX/((int)desordenInicialSlider+1))), 0);
             Figura fig = Figura(posicion, sizeFigura, profundidad, (float)factorSmoothingSlider, this->tipoFigura);
             fila.push_back(fig);
         }
@@ -162,10 +174,6 @@ void ofApp::desordenInicialSliderChanged(int &desorden) {
     setupSistemaFiguras();
 }
 
-void ofApp::distanciaEntreBloquesChanged(int &desorden) {
-    setupSistemaFiguras();
-}
-
 void ofApp::cubosButtonPressed() {
     this->tipoFigura = Figura::enumTipoFigura::CUBO;
     this->actualizarTipoFigura(Figura::enumTipoFigura::CUBO);
@@ -206,10 +214,14 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofBackground(ofColor(255,255,255));
+    ofBackground(ofColor(0,0,0));
     if (!mouseNav) {
         cam.setupPerspective();
         cam.setPosition(ofVec3f(navX,navY,navZ));
+    } else {
+        navX = cam.getPosition().x;
+        navY = cam.getPosition().y;
+        navZ = cam.getPosition().z;
     }
     if (lookAtCenter) {
         cam.lookAt(ofVec3f(videoPlayer.getWidth()/2, videoPlayer.getHeight()/2, 0));
