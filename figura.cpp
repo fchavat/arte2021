@@ -43,6 +43,15 @@ void Figura::draw(float brightness) {
   ofPopMatrix();
 }
 
+void Figura::actualizarColorObjetivo(ofColor c) {
+  this->colorObjetivo = c;
+}
+
+void Figura::draw(bool tamanoPorBrillo, float tamanoPorBrilloMinimo, float tamanoPorBrilloMaximo) {
+  ofColor c = this->colorObjetivo;
+  this->draw(c.r, c.g, c.b, c.a, tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
+}
+
 void Figura::draw(float R, float G, float B, float A, bool tamanoPorBrillo, float tamanoPorBrilloMinimo, float tamanoPorBrilloMaximo) {
   this->actualizarProfActual();
   this->actualizarColorActual();
@@ -54,7 +63,7 @@ void Figura::draw(float R, float G, float B, float A, bool tamanoPorBrillo, floa
   float nuevaProfObjetivo = ofMap(brightness, 0, 255, -this->rangoProfundidad, this->rangoProfundidad);
   this->profObjetivo = nuevaProfObjetivo;
   
-  float tamanoActual = ofMap(brightness, 0, 255, 1, tamano);
+  float tamanoActual = ofMap(brightness, 0, 255, 1, this->tamano);
   float profBloque = this->profActual;
   float factorTamanoBrillo = ofMap(brightness, 0, 255, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
   float factorTamano = ofMap(profBloque, -this->rangoProfundidad, this->rangoProfundidad, 1, 3);
@@ -74,7 +83,7 @@ void Figura::dibujarFigura(ofVec3f pos, float size) {
     }
     else if (this->tipoFigura == PRISMA) {
       ofTranslate(pos.x, pos.y, -pos.z);
-      ofDrawBox(size, size, profActual*2);
+      ofDrawBox(size, size, this->profActual*2);
     }
     else if (this->tipoFigura == ESFERA) {
       ofTranslate(pos);
@@ -88,7 +97,7 @@ void Figura::actualizarProfActual() {
     this->profActual = this->profObjetivo;
   } else if (modoMovimiento == SMOOTH)
   {
-    this->profActual = this->profActual + (this->profObjetivo - this->profActual)*factorSmoothing;
+    this->profActual = this->profActual + (this->profObjetivo - this->profActual)*this->factorSmoothing;
     this->colorActual = this->colorActual.lerp(this->colorObjetivo, this->factorSmoothing);
   }
   

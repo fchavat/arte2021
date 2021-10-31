@@ -66,9 +66,9 @@ class ofApp : public ofBaseApp{
 	ofxButton esferasButton;
 	void esferasButtonPressed();
 	void actualizarTipoFigura(Figura::enumTipoFigura);
-	ofxFloatSlider factorSmoothing;
+	ofxFloatSlider factorSmoothingSlider;
 	void factorSmoothingChanged(float &factor);
-	ofxFloatSlider factorColorSmoothing;
+	ofxFloatSlider factorColorSmoothingSlider;
 	void factorColorSmoothingChanged(float &factor);
 	ofxIntSlider desordenInicialSlider;
 	void desordenInicialSliderChanged(int &desorden);
@@ -93,5 +93,6 @@ class ofApp : public ofBaseApp{
 	int filas;
 	Figura::enumTipoFigura tipoFigura = Figura::enumTipoFigura::CUBO;
 	std::vector<std::vector<Figura>> sistemaFiguras;
+	std::vector<Figura*> refsSistemaFiguras;
 
 };

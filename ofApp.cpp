@@ -22,8 +22,8 @@ void ofApp::setup(){
     cubosButton.addListener(this, &ofApp::cubosButtonPressed);
     prismasButton.addListener(this, &ofApp::prismasButtonPressed);
     esferasButton.addListener(this, &ofApp::esferasButtonPressed);
-    factorSmoothing.addListener(this, &ofApp::factorSmoothingChanged);
-    factorColorSmoothing.addListener(this, &ofApp::factorColorSmoothingChanged);
+    factorSmoothingSlider.addListener(this, &ofApp::factorSmoothingChanged);
+    factorColorSmoothingSlider.addListener(this, &ofApp::factorColorSmoothingChanged);
     desordenInicialSlider.addListener(this, &ofApp::desordenInicialSliderChanged);
     distanciaEntreBloques.addListener(this, &ofApp::distanciaEntreBloquesChanged);
     parametrosAtributosFigura.setup("Figuras, Smoothing y otros");
@@ -34,8 +34,8 @@ void ofApp::setup(){
     parametrosAtributosFigura.add(&parametrosTipoFigura);
     parametrosAtributosFigura.add(sizeFigura.setup("Tamano figura", 8, 2, 32));
     parametrosAtributosFigura.add(profundidad.set("Profundidad maxima", 0, -1000, 1000));
-    parametrosAtributosFigura.add(factorSmoothing.setup("Velocidad smooth movimiento", 0.5, 0.01, 1));
-    parametrosAtributosFigura.add(factorColorSmoothing.setup("Velocidad smooth color", 0.5, 0.01, 1));
+    parametrosAtributosFigura.add(factorSmoothingSlider.setup("Velocidad smooth movimiento", 0.5, 0.01, 1));
+    parametrosAtributosFigura.add(factorColorSmoothingSlider.setup("Velocidad smooth color", 0.5, 0.01, 1));
     parametrosAtributosFigura.add(desordenInicialSlider.setup("Desorden inicial", 0, 0, 10));
     parametrosAtributosFigura.add(distanciaEntreBloques.setup("Distancia entre bloques", 0, 0, 100));
 
@@ -83,7 +83,10 @@ void ofApp::guardarPresetConfiguracion() {
 void ofApp::cargarPresetConfiguracion() {
     ofFileDialogResult res;
     res = ofSystemLoadDialog( "Cargar preset de configuracion" );
-    if ( res.bSuccess ) gui.loadFromFile( res.filePath );
+    if ( res.bSuccess ) {
+        gui.loadFromFile( res.filePath );
+        cargarVideo();
+    }
 }
 
 void ofApp::setupSistemaFiguras() {
@@ -97,12 +100,22 @@ void ofApp::setupSistemaFiguras() {
             int offsetDistX = (j+1)*distanciaEntreBloques;
             int offsetDistY = (i+1)*distanciaEntreBloques;
             ofVec3f posicion = ofVec3f(j*sizeFigura+(random()/(RAND_MAX/((int)desordenInicialSlider+1)))+offsetDistX, i*sizeFigura+(random()/(RAND_MAX/((int)desordenInicialSlider+1)))+offsetDistY, 0);
-            fila.push_back(Figura(posicion, sizeFigura, profundidad, (float)factorSmoothing, this->tipoFigura));
+            Figura fig = Figura(posicion, sizeFigura, profundidad, (float)factorSmoothingSlider, this->tipoFigura);
+            fila.push_back(fig);
         }
         auxiliar.push_back(fila);
     }
     sistemaFiguras = auxiliar;
+
+    // Punteros a los elementos del sistema de figuras (se usa para reordenarlo y dibujar segun alpha)
+    refsSistemaFiguras.clear();
+    for (int i=0; i<filas; i++) {
+        for (int j=0; j<columnas; j++) {
+            refsSistemaFiguras.push_back(&sistemaFiguras[i][j]);
+        }
+    }
     std::cout << "[i] Termino de configurar sistema de Figuras\n";
+    
 }
 
 void ofApp::actualizarProfundidad() {
@@ -193,7 +206,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofBackground(ofColor(0,0,0));
+    ofBackground(ofColor(255,255,255));
     if (!mouseNav) {
         cam.setupPerspective();
         cam.setPosition(ofVec3f(navX,navY,navZ));
@@ -204,15 +217,19 @@ void ofApp::draw(){
     cam.begin();    
 	// this uses depth information for occlusion
 	// rather than always drawing things on top of each other
-	ofEnableDepthTest();
-        for (int i=0; i<filas; i++) {
-            for (int j=0; j<columnas; j++) {
-                int x = j*sizeFigura;
-                int y = i*sizeFigura;
-                ofColor color = framePixels.getColor(x, y);
-                sistemaFiguras[i][j].draw(color.r, color.g, color.b, color.a, tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
-            }
-        }
+    ofEnableDepthTest();
+
+    // Ordenamos las referencias segun alpha para dibujar primero los mas opacos
+    std::sort(refsSistemaFiguras.begin(), refsSistemaFiguras.end(), [](const Figura* lhs, const Figura* rhs) {
+        return lhs->colorActual.a > rhs->colorActual.a;
+    });
+    // Actualizamos color y dibujamos
+    for (Figura* f : refsSistemaFiguras) {
+        ofVec3f pos = f->posActual;
+        ofColor color = framePixels.getColor(pos.x, pos.y);
+        f->actualizarColorObjetivo(color);
+        f->draw(tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
+    }
     ofDisableDepthTest();
     cam.end();
     gui.draw();
