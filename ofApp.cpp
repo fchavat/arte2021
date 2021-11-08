@@ -205,8 +205,19 @@ void ofApp::cargarVideo() {
 //--------------------------------------------------------------
 void ofApp::update(){
     videoPlayer.update();
-    if (videoPlayer.isFrameNew())
+    if (videoPlayer.isFrameNew()) {
         framePixels = videoPlayer.getPixels();
+        // Ordenamos las referencias segun alpha para dibujar primero los mas opacos
+        std::sort(refsSistemaFiguras.begin(), refsSistemaFiguras.end(), [](const Figura* lhs, const Figura* rhs) {
+            return lhs->colorActual.a > rhs->colorActual.a;
+        });
+        // Actualizamos color y dibujamos
+        for (Figura* f : refsSistemaFiguras) {
+            ofVec3f pos = f->posActual;
+            ofColor color = framePixels.getColor(pos.x, pos.y);
+            f->actualizarColorObjetivo(color);
+        }
+    }
     std::stringstream strm;
 	strm << "fps: " << ofGetFrameRate();
 	ofSetWindowTitle(strm.str());
@@ -230,16 +241,8 @@ void ofApp::draw(){
 	// this uses depth information for occlusion
 	// rather than always drawing things on top of each other
     ofEnableDepthTest();
-
-    // Ordenamos las referencias segun alpha para dibujar primero los mas opacos
-    std::sort(refsSistemaFiguras.begin(), refsSistemaFiguras.end(), [](const Figura* lhs, const Figura* rhs) {
-        return lhs->colorActual.a > rhs->colorActual.a;
-    });
     // Actualizamos color y dibujamos
     for (Figura* f : refsSistemaFiguras) {
-        ofVec3f pos = f->posActual;
-        ofColor color = framePixels.getColor(pos.x, pos.y);
-        f->actualizarColorObjetivo(color);
         f->draw(tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
     }
     ofDisableDepthTest();
