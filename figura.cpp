@@ -47,12 +47,12 @@ void Figura::actualizarColorObjetivo(ofColor c) {
   this->colorObjetivo = c;
 }
 
-void Figura::draw(bool tamanoPorBrillo, float tamanoPorBrilloMinimo, float tamanoPorBrilloMaximo) {
+void Figura::draw(std::map<std::string, float> factoresVinculaciones, bool tamanoPorBrillo, float tamanoPorBrilloMinimo, float tamanoPorBrilloMaximo) {
   ofColor c = this->colorObjetivo;
-  this->draw(c.r, c.g, c.b, c.a, tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
+  this->draw(factoresVinculaciones, c.r, c.g, c.b, c.a, tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
 }
 
-void Figura::draw(float R, float G, float B, float A, bool tamanoPorBrillo, float tamanoPorBrilloMinimo, float tamanoPorBrilloMaximo) {
+void Figura::draw(std::map<std::string, float> factoresVinculaciones, float R, float G, float B, float A, bool tamanoPorBrillo, float tamanoPorBrilloMinimo, float tamanoPorBrilloMaximo) {
   this->actualizarProfActual();
   this->actualizarColorActual();
   float brightness = 0.2126 * R + 0.7152 * G + 0.0722 * B;
@@ -61,7 +61,7 @@ void Figura::draw(float R, float G, float B, float A, bool tamanoPorBrillo, floa
   ofSetColor(this->colorActual);
 
   float nuevaProfObjetivo = ofMap(brightness, 0, 255, -this->rangoProfundidad, this->rangoProfundidad);
-  this->profObjetivo = nuevaProfObjetivo;
+  this->profObjetivo = nuevaProfObjetivo*(1+factoresVinculaciones["Profundidad figuras"]);
   
   float tamanoActual = ofMap(brightness, 0, 255, 1, this->tamano);
   float profBloque = this->profActual;
@@ -69,9 +69,9 @@ void Figura::draw(float R, float G, float B, float A, bool tamanoPorBrillo, floa
   float factorTamano = ofMap(profBloque, -this->rangoProfundidad, this->rangoProfundidad, 1, 3);
   ofVec3f pos = ofVec3f(this->posActual.x, this->posActual.y, profBloque);
   if (tamanoPorBrillo) {
-    this->dibujarFigura(pos, this->tamano*factorTamanoBrillo);
+    this->dibujarFigura(pos, this->tamano*factorTamanoBrillo*(1+factoresVinculaciones["Tamano figuras"]));
   } else {
-    this->dibujarFigura(pos, this->tamano);
+    this->dibujarFigura(pos, this->tamano*(1+factoresVinculaciones["Tamano figuras"]));
   }
 }
 

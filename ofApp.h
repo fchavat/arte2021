@@ -4,6 +4,10 @@
 #include <vector>
 #include "figura.h"
 #include "ofxGui.h"
+#include "ofxImGui.h"
+#include "ofxOpenCv.h"
+#include "ofxXmlSettings.h"
+
 
 class ofApp : public ofBaseApp{
 	public:
@@ -93,5 +97,73 @@ class ofApp : public ofBaseApp{
 	Figura::enumTipoFigura tipoFigura = Figura::enumTipoFigura::CUBO;
 	std::vector<std::vector<Figura>> sistemaFiguras;
 	std::vector<Figura*> refsSistemaFiguras;
+
+	// Sistema de modulacion de entradas y parametros
+	struct afectacion {
+		int parametroAfectado;
+		float valorEntrada;
+		float amplificacion;
+	};
+
+	struct vinculacion {
+		string entrada;
+		int indEntrada;
+		std::vector<afectacion> parametrosAfectados;
+	};
+	std::vector<vinculacion> vinculaciones;
+	std::vector<int> cosas;
+	const char* entradasValidas[2] = {"Sonido", "Camara"};
+	const char* parametrosValidos[5] = {"Profundidad figuras", "Tamano figuras", "Despl. camara X", "Despl. camara Y", "Despl. camara Z"};
+	std::map<std::string, float> factoresVinculaciones = {
+		{"Profundidad figuras", 0}, 
+		{"Tamano figuras", 0}, 
+		{"Despl. camara X", 0}, 
+		{"Despl. camara Y", 0}, 
+		{"Despl. camara Z", 0}
+	};
+	std::map<std::string, float> feedbackVinculaciones = {
+		{"Profundidad figuras", 0.99}, 
+		{"Tamano figuras", 0.99}, 
+		{"Despl. camara X", 0.99}, 
+		{"Despl. camara Y", 0.99}, 
+		{"Despl. camara Z", 0.99}
+	};;
+	float factorDesplazamientoX = 0;
+	float factorDesplazamientoY = 0;
+	float factorDesplazamientoZ = 0;
+	float factorProfundidad = 0;
+	float factorTamanoFigura = 0;
+	// std::map<string, string> entradasVinculadas; // El key va a ser el nombre del vinculo, el valor va a ser 
+	// std::map<string, string> entradasCargadas;
+	std::map<string, float> entradasSonido;
+	bool entradaSonidoIniciada = false;
+	void audioIn(ofSoundBuffer & input);
+	void configurar_entrada_audio();
+	ofSoundStream soundStream;
+	vector <float> left;
+	vector <float> right;
+	vector <float> volHistory;
+	int 	bufferCounter;
+	int 	drawCounter;
+	float smoothedVol;
+	float scaledVol;
+
+	// Entrada video
+	ofVideoGrabber webCam;
+	float camaraCercania = -1;
+	bool entradaCamaraIniciada = false;
+	void configurar_entrada_camara();
+	ofxCvColorImage			colorImg;
+	ofxCvGrayscaleImage 	grayImage;
+	ofxCvGrayscaleImage 	grayBg;
+	ofxCvGrayscaleImage 	grayDiff;
+	ofxCvContourFinder 	contourFinder;
+	int 				threshold;
+	bool				bLearnBakground;
+	ofFbo webCamFBO;
+	GLuint webCamTextureSourceID;
+	
+
+	ofxImGui::Gui vinculacionesGui;
 
 };
