@@ -55,6 +55,7 @@ void ofApp::setup(){
     gui.add(&parametrosManejadorVideo);
     gui.add(&parametrosAtributosFigura);
     gui.add(&parametrosNavegacion);
+    
 
 
     // Gui de vinculaciones 
@@ -334,15 +335,17 @@ void ofApp::update(){
             grayDiff.threshold(threshold);
             // find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
             // also, find holes is set to true so we will get interior contours as well....
-            contourFinder.findContours(grayDiff, 20, (340*240)/3, 10, true);	// find holes
+            contourFinder.findContours(grayDiff, 20, (340*240)/3, 10, false, true);	// find holes
+
             float maxPorcentaje = -1;
             for (int i = 0; i < contourFinder.nBlobs; i++){
-                float areaBlob = contourFinder.blobs[i].area;
-                float porcentajeOcupado = areaBlob*100.0/(webCam.getWidth()*webCam.getHeight());
-                if (porcentajeOcupado > maxPorcentaje)
-                    maxPorcentaje = porcentajeOcupado;
+                    float areaBlob = contourFinder.blobs[i].area;
+                    float porcentajeOcupado = ofMap(areaBlob, 20, (340*240)/3, 0, 100);
+                    if (porcentajeOcupado > maxPorcentaje)
+                            maxPorcentaje = porcentajeOcupado;
             }
-            camaraCercania = ofMap(maxPorcentaje, 0.0, 100.0, 0.0, 1.0, true);
+            camaraCercania = maxPorcentaje/100;
+            std::cout << camaraCercania << "\n";
         }
     }
 }
@@ -488,77 +491,80 @@ void ofApp::draw(){
     }
     ofDisableDepthTest();
     cam.end();
-    gui.draw();
+    if (!hideGUI) {
+        gui.draw();
 
-    vinculacionesGui.begin();
-        ImGui::SetNextWindowSize(ImVec2(550, 500));
-        ImGui::Begin("Vinculaciones de entradas");
-        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.48f, 1.0f, 0.56f));
-        if (ImGui::Button("Agregar vinculacion")) {
-            vinculacion nuevaVinculacion;
-            nuevaVinculacion.entrada = "N/S";
-            vinculaciones.push_back(nuevaVinculacion);
-        }
-        ImGui::PopStyleColor(1);
-        // Mostramos cada vinculacion
-        for (int i=0; i<vinculaciones.size(); i++) {
-            string nombre = "vinculacion" + to_string(i);
-            if (ImGui::TreeNode(nombre.c_str())) {
-                ImGui::Text(entradasValidas[vinculaciones[i].indEntrada]);
-                ImGui::SameLine();
-                ImGui::Text(" vinculado a ");
-                for (int j=0; j<vinculaciones[i].parametrosAfectados.size(); j++) {
-                    ImGui::Text(" - ");
-                    ImGui::SameLine();
-                    ImGui::Text(parametrosValidos[vinculaciones[i].parametrosAfectados[j].parametroAfectado]);
-                }
-                ImGui::Combo("Entrada usada", &vinculaciones[i].indEntrada, entradasValidas, IM_ARRAYSIZE(entradasValidas));
-                if (std::strcmp(entradasValidas[vinculaciones[i].indEntrada], "Camara") == 0) {
-                    if (ImGui::Button("SET FONDO (tecla espacio)")) {
-                        bLearnBakground = true;
-                    }
-                    ImGui::Text(to_string(camaraCercania).c_str());
-                } else if (std::strcmp(entradasValidas[vinculaciones[i].indEntrada], "Sonido") == 0) {
-                    ImGui::Text(to_string(entradasSonido["Sonido"]).c_str());
-                }
-                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.48f, 1.0f, 0.56f));
-                if (ImGui::Button("Agregar parametro afectado")) {
-                    afectacion pAfectado;
-                    pAfectado.amplificacion = 0.0;
-                    vinculaciones[i].parametrosAfectados.push_back(pAfectado);
-                }
-                ImGui::PopStyleColor(1);
-
-                for (int j=0; j<vinculaciones[i].parametrosAfectados.size(); j++) {
-                    string nombreParametro = "parametro" + to_string(j);
-                    if (ImGui::TreeNode(nombreParametro.c_str())) {
-                        ImGui::Combo("Parametro afectado", &vinculaciones[i].parametrosAfectados[j].parametroAfectado, parametrosValidos, IM_ARRAYSIZE(parametrosValidos));
-                        ImGui::SliderFloat("Suavidad", &vinculaciones[i].parametrosAfectados[j].amplificacion, 0.0f, 1.0f, "ratio = %.4f");
-
-                        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(7.0f, 0.6f, 0.6f));
-                        if (ImGui::Button("Eliminar parametro")) {
-                            vinculaciones[i].parametrosAfectados.erase(vinculaciones[i].parametrosAfectados.begin() + j);
-                        }
-                        ImGui::PopStyleColor(1);
-                        ImGui::TreePop();
-                    }
-                }
-                
-                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(7.0f, 0.6f, 0.6f));
-                if (ImGui::Button("Eliminar vinculacion")) {
-                    vinculaciones.erase(vinculaciones.begin() + i);
-                }
-                ImGui::PopStyleColor(1);
-                ImGui::TreePop();
-
+        vinculacionesGui.begin();
+            ImGui::SetNextWindowSize(ImVec2(550, 500));
+            ImGui::Begin("Vinculaciones de entradas");
+            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.48f, 1.0f, 0.56f));
+            if (ImGui::Button("Agregar vinculacion")) {
+                vinculacion nuevaVinculacion;
+                nuevaVinculacion.entrada = "N/S";
+                vinculaciones.push_back(nuevaVinculacion);
             }
-        }
-        ImGui::Text("Feedback de los factores");
-        for (auto const & [k, v] : feedbackVinculaciones) {
-            ImGui::SliderFloat(k.c_str(), &feedbackVinculaciones[k], 0.0f, 1.0f, "ratio = %.4f");
-        }
-    ImGui::Begin("Vinculaciones de entradas");
-    vinculacionesGui.end();
+            ImGui::PopStyleColor(1);
+            // Mostramos cada vinculacion
+            for (int i=0; i<vinculaciones.size(); i++) {
+                string nombre = "vinculacion" + to_string(i);
+                if (ImGui::TreeNode(nombre.c_str())) {
+                    ImGui::Text(entradasValidas[vinculaciones[i].indEntrada]);
+                    ImGui::SameLine();
+                    ImGui::Text(" vinculado a ");
+                    for (int j=0; j<vinculaciones[i].parametrosAfectados.size(); j++) {
+                        ImGui::Text(" - ");
+                        ImGui::SameLine();
+                        ImGui::Text(parametrosValidos[vinculaciones[i].parametrosAfectados[j].parametroAfectado]);
+                    }
+                    ImGui::Combo("Entrada usada", &vinculaciones[i].indEntrada, entradasValidas, IM_ARRAYSIZE(entradasValidas));
+                    if (std::strcmp(entradasValidas[vinculaciones[i].indEntrada], "Camara") == 0) {
+                        if (ImGui::Button("SET FONDO (tecla espacio)")) {
+                            bLearnBakground = true;
+                        }
+                        ImGui::Text(to_string(camaraCercania).c_str());
+                    } else if (std::strcmp(entradasValidas[vinculaciones[i].indEntrada], "Sonido") == 0) {
+                        ImGui::Text(to_string(entradasSonido["Sonido"]).c_str());
+                    }
+                    ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.48f, 1.0f, 0.56f));
+                    if (ImGui::Button("Agregar parametro afectado")) {
+                        afectacion pAfectado;
+                        pAfectado.amplificacion = 0.0;
+                        vinculaciones[i].parametrosAfectados.push_back(pAfectado);
+                    }
+                    ImGui::PopStyleColor(1);
+
+                    for (int j=0; j<vinculaciones[i].parametrosAfectados.size(); j++) {
+                        string nombreParametro = "parametro" + to_string(j);
+                        if (ImGui::TreeNode(nombreParametro.c_str())) {
+                            ImGui::Combo("Parametro afectado", &vinculaciones[i].parametrosAfectados[j].parametroAfectado, parametrosValidos, IM_ARRAYSIZE(parametrosValidos));
+                            ImGui::SliderFloat("Suavidad", &vinculaciones[i].parametrosAfectados[j].amplificacion, 0.0f, 1.0f, "ratio = %.4f");
+
+                            ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(7.0f, 0.6f, 0.6f));
+                            if (ImGui::Button("Eliminar parametro")) {
+                                vinculaciones[i].parametrosAfectados.erase(vinculaciones[i].parametrosAfectados.begin() + j);
+                            }
+                            ImGui::PopStyleColor(1);
+                            ImGui::TreePop();
+                        }
+                    }
+                    
+                    ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(7.0f, 0.6f, 0.6f));
+                    if (ImGui::Button("Eliminar vinculacion")) {
+                        vinculaciones.erase(vinculaciones.begin() + i);
+                    }
+                    ImGui::PopStyleColor(1);
+                    ImGui::TreePop();
+
+                }
+            }
+            ImGui::Text("Feedback de los factores");
+            for (auto const & [k, v] : feedbackVinculaciones) {
+                ImGui::SliderFloat(k.c_str(), &feedbackVinculaciones[k], 0.0f, 1.0f, "ratio = %.4f");
+            }
+        ImGui::Begin("Vinculaciones de entradas");
+        vinculacionesGui.end();
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -620,6 +626,10 @@ void ofApp::keyPressed(int key){
     }
     if ( key == 'l' ) {
         cargarPresetConfiguracion();
+    }
+    
+    if (key == 'g') {
+        hideGUI = !hideGUI;
     }
 }
 //--------------------------------------------------------------

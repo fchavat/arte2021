@@ -44,6 +44,7 @@ class ofApp : public ofBaseApp{
 	bool bw = false;
 	bool cubes = true;
 
+	bool hideGUI = false;
 	// ##############################
 	// ##########   ofxGui    #######
 	// ##############################
