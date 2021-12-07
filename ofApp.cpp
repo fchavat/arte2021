@@ -65,6 +65,17 @@ void ofApp::setup(){
 
     // Setup de sistema de figuras
     setupSistemaFiguras();
+
+	ss.setup(1848, 1016, ofxScreenSetup::WINDOWED);
+    // ss.cycleToNextScreenMode();
+}
+
+void ofApp::setupChanged(ofxScreenSetup::ScreenSetupArg &arg){
+
+	ofLogNotice()	<< "ofxScreenSetup setup changed from " << ss.stringForMode(arg.oldMode)
+	<< " (" << arg.oldWidth << "x" << arg.oldHeight << ") "
+	<< " to " << ss.stringForMode(arg.newMode)
+	<< " (" << arg.newWidth << "x" << arg.newHeight << ")";
 }
 
 void ofApp::cargarVideoButtonPressed() {
@@ -192,7 +203,15 @@ void ofApp::cargarPresetConfiguracion() {
         }
 
         XML.popTag();
-        cargarVideo();
+        // Cargamos el video
+        videoPlayer.setPixelFormat(OF_PIXELS_RGBA);
+        videoPlayer.load(nombreVideoTxtInput);
+        videoPlayer.setVolume(0);
+        videoPlayer.setUseTexture(true);
+        videoPlayer.play();
+    
+        // Inicializamos sistema de figuras para el video.
+        setupSistemaFiguras();
     }
 }
 
@@ -345,7 +364,6 @@ void ofApp::update(){
                             maxPorcentaje = porcentajeOcupado;
             }
             camaraCercania = maxPorcentaje/100;
-            std::cout << camaraCercania << "\n";
         }
     }
 }
@@ -500,7 +518,8 @@ void ofApp::draw(){
             ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.48f, 1.0f, 0.56f));
             if (ImGui::Button("Agregar vinculacion")) {
                 vinculacion nuevaVinculacion;
-                nuevaVinculacion.entrada = "N/S";
+                nuevaVinculacion.entrada = "Sonido";
+                nuevaVinculacion.indEntrada = 0;
                 vinculaciones.push_back(nuevaVinculacion);
             }
             ImGui::PopStyleColor(1);
@@ -627,10 +646,19 @@ void ofApp::keyPressed(int key){
     if ( key == 'l' ) {
         cargarPresetConfiguracion();
     }
-    
     if (key == 'g') {
         hideGUI = !hideGUI;
     }
+    if (key == 'f')     
+	    ofToggleFullscreen();
+
+    if(key == 'k'){
+		// ss.cycleToNextScreenMode();
+        if (ss.currentMode == ofxScreenSetup::WINDOWED)
+            ss.setup(3840, 1080, ofxScreenSetup::FULL_ALL_MONITORS);
+        else
+            ss.setup(3840, 1080, ofxScreenSetup::WINDOWED);
+	}
 }
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){

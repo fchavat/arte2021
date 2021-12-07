@@ -7,6 +7,8 @@
 #include "ofxImGui.h"
 #include "ofxOpenCv.h"
 #include "ofxXmlSettings.h"
+#include "ofxScreenSetup.h"
+
 
 
 class ofApp : public ofBaseApp{
@@ -166,5 +168,8 @@ class ofApp : public ofBaseApp{
 	
 
 	ofxImGui::Gui vinculacionesGui;
+
+	ofxScreenSetup ss;
+	void setupChanged(ofxScreenSetup::ScreenSetupArg &arg);
 
 };
