@@ -650,7 +650,7 @@ void ofApp::draw(){
             for (auto const & [k, v] : feedbackVinculaciones) {
                 ImGui::SliderFloat(k.c_str(), &feedbackVinculaciones[k], 0.0f, 1.0f, "ratio = %.4f");
             }
-        ImGui::Begin("Vinculaciones de entradas");
+        ImGui::End();
         vinculacionesGui.end();
     }
 
