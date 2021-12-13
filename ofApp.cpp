@@ -420,12 +420,12 @@ void ofApp::update(){
             grayDiff.threshold(threshold);
             // find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
             // also, find holes is set to true so we will get interior contours as well....
-            contourFinder.findContours(grayDiff, 20, (340*240)/3, 10, false, true);	// find holes
+            contourFinder.findContours(grayDiff, 20, (webCam.getWidth()*webCam.getHeight())/3, 10, false, true);	// find holes
 
             float maxPorcentaje = -1;
             for (int i = 0; i < contourFinder.nBlobs; i++){
                     float areaBlob = contourFinder.blobs[i].area;
-                    float porcentajeOcupado = ofMap(areaBlob, 20, (340*240)/3, 0, 100);
+                    float porcentajeOcupado = ofMap(areaBlob, 20, (webCam.getWidth()*webCam.getHeight())/3, 0, 100);
                     if (porcentajeOcupado > maxPorcentaje)
                             maxPorcentaje = porcentajeOcupado;
             }
@@ -489,13 +489,13 @@ void ofApp::configurar_entrada_camara() {
     webCam.setDeviceID(0);
     webCam.setDesiredFrameRate(10);
     webCam.initGrabber(320, 240);
-	colorImg.allocate(320,240);
-	grayImage.allocate(320,240);
-	grayBg.allocate(320,240);
-	grayDiff.allocate(320,240);
+	colorImg.allocate(webCam.getWidth(),webCam.getHeight());
+	grayImage.allocate(webCam.getWidth(),webCam.getHeight());
+	grayBg.allocate(webCam.getWidth(),webCam.getHeight());
+	grayDiff.allocate(webCam.getWidth(),webCam.getHeight());
 	bLearnBakground = true;
 	threshold = 80;
-    webCamFBO.allocate(320, 240);
+    webCamFBO.allocate(webCam.getWidth(), webCam.getHeight());
     ofTextureData texData = webCamFBO.getTexture().getTextureData();
     glBindTexture(webCamTextureSourceID, (GLuint)texData.textureID);
 }
