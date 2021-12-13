@@ -40,11 +40,19 @@ class ofApp : public ofBaseApp{
 	ofVideoPlayer videoPlayer;
 
 	ofParameter<int> profundidad = 100;
+	ofParameter<int> profundidad2 = 100;
+
 	int zoom = 300;
 	ofPixels framePixels;
 	void profundidadChanged(int &profundidad);
 	bool bw = false;
 	bool cubes = true;
+
+	// Para la traslacion de los videos
+	ofParameter<int> traslacionX = 0;
+	ofParameter<int> traslacionY = 0;
+	ofParameter<int> traslacionZ = 0;
+	void actualizarTraslacionVideo(int &aux);
 
 	bool hideGUI = false;
 	// ##############################
@@ -171,5 +179,17 @@ class ofApp : public ofBaseApp{
 
 	ofxScreenSetup ss;
 	void setupChanged(ofxScreenSetup::ScreenSetupArg &arg);
+
+	// ##############################
+	// ##########   2nd video #######
+	// ##############################
+	ofVideoPlayer videoPlayer2;
+	ofPixels framePixels2;
+	// Sistema de figuras independientes 2
+	int columnas2;
+	int filas2;
+	Figura::enumTipoFigura tipoFigura2 = Figura::enumTipoFigura::CUBO;
+	std::vector<std::vector<Figura>> sistemaFiguras2;
+	std::vector<Figura*> refsSistemaFiguras2;
 
 };

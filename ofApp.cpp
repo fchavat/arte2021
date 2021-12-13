@@ -9,15 +9,22 @@ void ofApp::setup(){
     // Setup GUI - Video
     parametrosManejadorVideo.setup("Manejo de video");
     cargarVideoButton.addListener(this, &ofApp::cargarVideoButtonPressed);
-    parametrosManejadorVideo.add(nombreVideoTxtInput.setup("Nombre video:", "video.m4v"));
+    parametrosManejadorVideo.add(nombreVideoTxtInput.setup("Nombre video:", "video2.mp4"));
     parametrosManejadorVideo.add(cargarVideoButton.setup("Cargar video"));
     guardarConfiguracion.addListener(this, &ofApp::guardarPresetConfiguracion);
     cargarConfiguracion.addListener(this, &ofApp::cargarPresetConfiguracion);
     parametrosManejadorVideo.add(guardarConfiguracion.setup("Guardar configuracion (tecla s)"));
     parametrosManejadorVideo.add(cargarConfiguracion.setup("Cargar configuracion (tecla l)"));
+    traslacionX.addListener(this, &ofApp::actualizarTraslacionVideo);
+    traslacionY.addListener(this, &ofApp::actualizarTraslacionVideo);
+    traslacionZ.addListener(this, &ofApp::actualizarTraslacionVideo);
+    parametrosManejadorVideo.add(traslacionX.set("Traslacion X", 0, -1000, 1000));
+    parametrosManejadorVideo.add(traslacionY.set("Traslacion Y", 0, -1000, 1000));
+    parametrosManejadorVideo.add(traslacionZ.set("Traslacion Z", 0, -1000, 1000));  
     // Setup GUI - Figuras y Smoothing
     sizeFigura.addListener(this, &ofApp::sizeFiguraChanged);
     profundidad.addListener(this, &ofApp::profundidadChanged);
+    profundidad2.addListener(this, &ofApp::profundidadChanged);
     cubosButton.addListener(this, &ofApp::cubosButtonPressed);
     prismasButton.addListener(this, &ofApp::prismasButtonPressed);
     esferasButton.addListener(this, &ofApp::esferasButtonPressed);
@@ -34,6 +41,7 @@ void ofApp::setup(){
     parametrosAtributosFigura.add(profundidad.set("Profundidad maxima", 0, -1000, 1000));
     parametrosAtributosFigura.add(factorSmoothingSlider.setup("Velocidad smooth movimiento", 0.5, 0.01, 1));
     parametrosAtributosFigura.add(factorColorSmoothingSlider.setup("Velocidad smooth color", 0.5, 0.01, 1));
+    parametrosAtributosFigura.add(profundidad2.set("Profundidad maxima 2", 0, -1000, 1000));
     parametrosAtributosFigura.add(desordenInicialSlider.setup("Desorden inicial", 0, 0, 10));
 
     parametrosFactorTamanoPorBrillo.setup("Parametros tamano segun brillo");
@@ -239,13 +247,49 @@ void ofApp::setupSistemaFiguras() {
         }
     }
     std::cout << "[i] Termino de configurar sistema de Figuras\n";
-    
+
+    ////////////////////// SET UP SISTEMAS DE FIGURAS 2 ////////////////////////////
+        std::cout << "[i] Setup de sistema de Figuras\n";
+    std::vector<std::vector<Figura>> auxiliar2;
+    columnas2 = videoPlayer2.getWidth()/sizeFigura;
+    filas2 = videoPlayer2.getHeight()/sizeFigura;
+    for (int i = 0; i < filas2; i++) {
+        std::vector<Figura> fila2;
+        for (int j = 0; j < columnas2; j++) {
+            ofVec3f posicion2 = ofVec3f( j*sizeFigura+(random()/(RAND_MAX/((int)desordenInicialSlider+1))),i*sizeFigura+(random()/(RAND_MAX/((int)desordenInicialSlider+1))), 0);
+            Figura fig2 = Figura(posicion2, sizeFigura, profundidad2, (float)factorSmoothingSlider, this->tipoFigura);
+            fila2.push_back(fig2);
+        }
+        auxiliar2.push_back(fila2);
+    }
+    sistemaFiguras2 = auxiliar2;
+    // Punteros a los elementos del sistema de figuras (se usa para reordenarlo y dibujar segun alpha)
+    refsSistemaFiguras2.clear();
+    for (int i=0; i<filas2; i++) {
+        for (int j=0; j<columnas2; j++) {
+            refsSistemaFiguras2.push_back(&sistemaFiguras2[i][j]);
+        }
+    }
+    std::cout << "[i] Termino de configurar sistema de Figuras\n";
+}
+
+void ofApp::actualizarTraslacionVideo(int &aux) {
+    for (int i = 0; i < filas2; i++) {
+        for (int j = 0; j < columnas2; j++) {
+            sistemaFiguras2[i][j].updateTraslacionPosicion(this->traslacionX, this->traslacionY, this->traslacionZ);
+        }
+    }
 }
 
 void ofApp::actualizarProfundidad() {
     for (int i = 0; i < filas; i++) {
         for (int j = 0; j < columnas; j++) {
             sistemaFiguras[i][j].updateProfundidadMaxima(profundidad);
+        }
+    }
+    for (int i = 0; i < filas2; i++) {
+        for (int j = 0; j < columnas2; j++) {
+            sistemaFiguras2[i][j].updateProfundidadMaxima(profundidad2);
         }
     }
 }
@@ -311,6 +355,14 @@ void ofApp::cargarVideo() {
     navX = videoPlayer.getWidth() / 2;
     navY = videoPlayer.getHeight() / 2;
     navZ = 1500;
+
+    //2nd video
+    videoPlayer2.setPixelFormat(OF_PIXELS_RGBA);
+    videoPlayer2.load("video.mp4");
+    videoPlayer2.setVolume(0);
+    videoPlayer2.setUseTexture(true);
+    videoPlayer2.play();
+
     setupSistemaFiguras();
 }
 
@@ -328,6 +380,20 @@ void ofApp::update(){
             ofVec3f pos = f->posActual;
             ofColor color = framePixels.getColor(pos.x, pos.y);
             f->actualizarColorObjetivo(color);
+        }
+    }
+    videoPlayer2.update();
+    if (videoPlayer2.isFrameNew()) {
+        framePixels2 = videoPlayer2.getPixels();
+        // Ordenamos las referencias segun alpha para dibujar primero los mas opacos
+        std::sort(refsSistemaFiguras2.begin(), refsSistemaFiguras2.end(), [](const Figura* lhs, const Figura* rhs) {
+            return lhs->colorActual.a > rhs->colorActual.a;
+        });
+        // Actualizamos color y dibujamos
+        for (Figura* f : refsSistemaFiguras2) {
+            ofVec3f pos2 = f->posActual;
+            ofColor color2 = framePixels2.getColor(pos2.x, pos2.y);
+            f->actualizarColorObjetivo(color2);
         }
     }
     std::stringstream strm;
@@ -506,6 +572,10 @@ void ofApp::draw(){
     // Actualizamos color y dibujamos
     for (Figura* f : refsSistemaFiguras) {
         f->draw(this->factoresVinculaciones, tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
+    }
+    //2nd video
+    for (Figura* f : refsSistemaFiguras2) {
+        f->draw_sin_vinculacion(tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
     }
     ofDisableDepthTest();
     cam.end();

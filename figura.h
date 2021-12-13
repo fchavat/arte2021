@@ -24,9 +24,11 @@ class Figura{
     void updateFactorSmoothing(float factor);
     void updateFactorColorSmoothing(float factor);
     void updateTipoFigura(enumTipoFigura tipo);
+    void updateTraslacionPosicion(int traslacionPosicionX, int traslacionPosicionY, int traslacionPosicionZ);
 		void draw(float brightness);		
     void draw(std::map<std::string, float> factoresVinculaciones, bool tamanoPorBrillo = false, float tamanoPorBrilloMinimo=0.5, float tamanoPorBrilloMaximo=2);
     void draw(std::map<std::string, float> factoresVinculaciones, float R, float G, float B, float A, bool tamanoPorBrillo = false, float tamanoPorBrilloMinimo=0.5, float tamanoPorBrilloMaximo=2);
+    void draw_sin_vinculacion(bool tamanoPorBrillo = false, float tamanoPorBrilloMinimo=0.5, float tamanoPorBrilloMaximo=2);
 		
 		ofVec3f posActual;
     ofVec3f posObjetivo;
@@ -50,6 +52,10 @@ class Figura{
     // Tipo de figura
     enumTipoFigura tipoFigura = CUBO;
     void dibujarFigura(ofVec3f pos, float size);
+
+    int traslacionPosicionX = 0;
+    int traslacionPosicionY = 0;
+    int traslacionPosicionZ = 0;
 
 
   private:
