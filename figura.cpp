@@ -67,7 +67,7 @@ void Figura::draw(std::map<std::string, float> factoresVinculaciones, float R, f
   float profBloque = this->profActual;
   float factorTamanoBrillo = ofMap(brightness, 0, 255, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
   float factorTamano = ofMap(profBloque, -this->rangoProfundidad, this->rangoProfundidad, 1, 3);
-  ofVec3f pos = ofVec3f(this->posActual.x, this->posActual.y, profBloque);
+  ofVec3f pos = ofVec3f(this->posActual.x + this->traslacionPosicionX, this->posActual.y + this->traslacionPosicionY, profBloque + this->traslacionPosicionZ);
   if (tamanoPorBrillo) {
     this->dibujarFigura(pos, this->tamano*factorTamanoBrillo*(1+factoresVinculaciones["Tamano figuras"]));
   } else {
