@@ -196,7 +196,7 @@ void ofApp::guardarPresetConfiguracion() {
             XML.pushTag("FACTOR", i);
             std::string nombreStr = std::string(nombre);
             XML.addValue("NOMBRE", nombreStr);
-            XML.addValue("VALOR", feedbackVinculaciones[nombreStr]);
+            XML.addValue("VALOR", feedbackVinculaciones[1][nombreStr]);
             XML.popTag();
             i += 1;
         }
@@ -258,7 +258,7 @@ void ofApp::cargarPresetConfiguracion() {
         for (int i=0; i<cantFactores; ++i) {
             XML.pushTag("FACTOR", i);
             std::string nombreFactor = XML.getValue("NOMBRE", "");
-            feedbackVinculaciones[nombreFactor] = XML.getValue("VALOR", 0.0);
+            feedbackVinculaciones[1][nombreFactor] = XML.getValue("VALOR", 0.0);
             XML.popTag();
         }
         // Imprimo todo para corroborar:
@@ -605,11 +605,13 @@ void ofApp::configurar_entrada_camara() {
 //--------------------------------------------------------------
 void ofApp::draw(){
     // Reseteo los factores para no acumular valores
-    factoresVinculaciones["Profundidad figuras"] = feedbackVinculaciones["Profundidad figuras"]*factoresVinculaciones["Profundidad figuras"];
-	factoresVinculaciones["Tamano figuras"] = feedbackVinculaciones["Tamano figuras"]*factoresVinculaciones["Tamano figuras"];
-	factoresVinculaciones["Despl. camara X"] = feedbackVinculaciones["Despl. camara X"]*factoresVinculaciones["Despl. camara X"];
-	factoresVinculaciones["Despl. camara Y"] = feedbackVinculaciones["Despl. camara Y"]*factoresVinculaciones["Despl. camara Y"];
-	factoresVinculaciones["Despl. camara Z"] = feedbackVinculaciones["Despl. camara Z"]*factoresVinculaciones["Despl. camara Z"];
+    for (int capa=1; capa<3; capa++) {
+        factoresVinculaciones[capa]["Profundidad figuras"] = feedbackVinculaciones[capa]["Profundidad figuras"]*factoresVinculaciones[capa]["Profundidad figuras"];
+        factoresVinculaciones[capa]["Tamano figuras"] = feedbackVinculaciones[capa]["Tamano figuras"]*factoresVinculaciones[capa]["Tamano figuras"];
+        factoresVinculaciones[capa]["Despl. camara X"] = feedbackVinculacionesGeneral["Despl. camara X"]*factoresVinculaciones[capa]["Despl. camara X"];
+        factoresVinculaciones[capa]["Despl. camara Y"] = feedbackVinculacionesGeneral["Despl. camara Y"]*factoresVinculaciones[capa]["Despl. camara Y"];
+        factoresVinculaciones[capa]["Despl. camara Z"] = feedbackVinculacionesGeneral["Despl. camara Z"]*factoresVinculaciones[capa]["Despl. camara Z"];
+    }
     // Primero lo que voy a hacer es procesar las vinculaciones y tomar decisiones o datos en funcion de estos
     for (int i=0; i<vinculaciones.size(); i++) {
         if (std::string(entradasValidas[vinculaciones[i].indEntrada]) == "Camara") {
@@ -641,7 +643,7 @@ void ofApp::draw(){
         for (int j=0; j<vinculaciones[i].parametrosAfectados.size(); j++) {
             afectacion af = vinculaciones[i].parametrosAfectados[j];
             std::string nombreParametro = std::string(parametrosValidos[vinculaciones[i].parametrosAfectados[j].parametroAfectado]);
-            factoresVinculaciones[nombreParametro] += af.valorEntrada*af.amplificacion;
+            factoresVinculaciones[af.capa][nombreParametro] += af.valorEntrada*af.amplificacion;
         }
     }
 
@@ -660,9 +662,9 @@ void ofApp::draw(){
         navZ = camPosition.z;
     }
 
-    float factoredNavX = (float)navX + factoresVinculaciones["Despl. camara X"]*(-1000);
-    float factoredNavY = (float)navY + factoresVinculaciones["Despl. camara Y"]*(-1000);
-    float factoredNavZ = (float)navZ + factoresVinculaciones["Despl. camara Z"]*(-1000);
+    float factoredNavX = (float)navX + factoresVinculaciones[1]["Despl. camara X"]*(-1000) + factoresVinculaciones[2]["Despl. camara X"]*(-1000);
+    float factoredNavY = (float)navY + factoresVinculaciones[1]["Despl. camara Y"]*(-1000) + factoresVinculaciones[2]["Despl. camara Y"]*(-1000);
+    float factoredNavZ = (float)navZ + factoresVinculaciones[1]["Despl. camara Z"]*(-1000) + factoresVinculaciones[2]["Despl. camara Z"]*(-1000);
     cam.setPosition(ofVec3f(factoredNavX, factoredNavY, factoredNavZ));
 
     if (lookAtCenter) {
@@ -674,11 +676,12 @@ void ofApp::draw(){
     ofEnableDepthTest();
     // Actualizamos color y dibujamos
     for (Figura* f : refsSistemaFiguras) {
-        f->draw(this->factoresVinculaciones, tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
+        f->draw(this->factoresVinculaciones[1], tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
     }
     //2nd video
     for (Figura* f : refsSistemaFiguras2) {
-        f->draw_sin_vinculacion(tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
+        f->draw(this->factoresVinculaciones[2], tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
+        // f->draw_sin_vinculacion(tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
     }
 
     //Setting video 1 texture to plane
@@ -739,6 +742,7 @@ void ofApp::draw(){
                     if (ImGui::Button("Agregar parametro afectado")) {
                         afectacion pAfectado;
                         pAfectado.amplificacion = 0.0;
+                        pAfectado.capa = 1;
                         vinculaciones[i].parametrosAfectados.push_back(pAfectado);
                     }
                     ImGui::PopStyleColor(1);
@@ -746,6 +750,10 @@ void ofApp::draw(){
                     for (int j=0; j<vinculaciones[i].parametrosAfectados.size(); j++) {
                         string nombreParametro = "parametro" + to_string(j);
                         if (ImGui::TreeNode(nombreParametro.c_str())) {
+                            const char* items[] = { "1", "2" };
+                            int capaElegida = vinculaciones[i].parametrosAfectados[j].capa -1;
+                            ImGui::Combo("Capa afectada", &capaElegida, items, 2);
+                            vinculaciones[i].parametrosAfectados[j].capa = capaElegida+1;
                             ImGui::Combo("Parametro afectado", &vinculaciones[i].parametrosAfectados[j].parametroAfectado, parametrosValidos, IM_ARRAYSIZE(parametrosValidos));
                             ImGui::SliderFloat("Suavidad", &vinculaciones[i].parametrosAfectados[j].amplificacion, 0.0f, 1.0f, "ratio = %.4f");
 
@@ -767,9 +775,17 @@ void ofApp::draw(){
 
                 }
             }
-            ImGui::Text("Feedback de los factores");
-            for (auto const & [k, v] : feedbackVinculaciones) {
-                ImGui::SliderFloat(k.c_str(), &feedbackVinculaciones[k], 0.0f, 1.0f, "ratio = %.4f");
+            ImGui::Text("CAPA 1 -Feedback de los factores");
+            for (auto const & [k, v] : feedbackVinculaciones[1]) {
+                ImGui::SliderFloat((k+" c1").c_str(), &feedbackVinculaciones[1][k], 0.0f, 1.0f, "ratio = %.4f");
+            }
+            ImGui::Text("CAPA 2 -Feedback de los factores");
+            for (auto const & [k, v] : feedbackVinculaciones[2]) {
+                ImGui::SliderFloat((k+" c2").c_str(), &feedbackVinculaciones[2][k], 0.0f, 1.0f, "ratio = %.4f");
+            }
+            ImGui::Text("Feedback de factores globales");
+            for (auto const & [k, v] : feedbackVinculacionesGeneral) {
+                ImGui::SliderFloat((k+" c2").c_str(), &feedbackVinculacionesGeneral[k], 0.0f, 1.0f, "ratio = %.4f");
             }
         ImGui::End();
         vinculacionesGui.end();

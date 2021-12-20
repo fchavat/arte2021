@@ -149,6 +149,7 @@ class ofApp : public ofBaseApp{
 		int parametroAfectado;
 		float valorEntrada;
 		float amplificacion;
+		int capa;
 	};
 
 	struct vinculacion {
@@ -160,20 +161,38 @@ class ofApp : public ofBaseApp{
 	std::vector<int> cosas;
 	const char* entradasValidas[2] = {"Sonido", "Camara"};
 	const char* parametrosValidos[5] = {"Profundidad figuras", "Tamano figuras", "Despl. camara X", "Despl. camara Y", "Despl. camara Z"};
-	std::map<std::string, float> factoresVinculaciones = {
-		{"Profundidad figuras", 0}, 
-		{"Tamano figuras", 0}, 
-		{"Despl. camara X", 0}, 
-		{"Despl. camara Y", 0}, 
-		{"Despl. camara Z", 0}
+	std::map<int, std::map<std::string, float>> factoresVinculaciones = {
+		{1, {
+			{"Profundidad figuras", 0}, 
+			{"Tamano figuras", 0}, 
+			{"Despl. camara X", 0}, 
+			{"Despl. camara Y", 0}, 
+			{"Despl. camara Z", 0}
+		}},
+		{2, {
+			{"Profundidad figuras", 0}, 
+			{"Tamano figuras", 0}, 
+			{"Despl. camara X", 0}, 
+			{"Despl. camara Y", 0}, 
+			{"Despl. camara Z", 0}
+		}}
 	};
-	std::map<std::string, float> feedbackVinculaciones = {
-		{"Profundidad figuras", 0.99}, 
-		{"Tamano figuras", 0.99}, 
+	std::map<int, std::map<std::string, float>> feedbackVinculaciones = {
+		{1, {
+			{"Profundidad figuras", 0.99}, 
+			{"Tamano figuras", 0.99}, 
+		}},
+		{2, {
+			{"Profundidad figuras", 0.99}, 
+			{"Tamano figuras", 0.99},
+		}},
+	};
+	std::map<std::string, float> feedbackVinculacionesGeneral = {
 		{"Despl. camara X", 0.99}, 
 		{"Despl. camara Y", 0.99}, 
 		{"Despl. camara Z", 0.99}
-	};;
+	};
+
 	float factorDesplazamientoX = 0;
 	float factorDesplazamientoY = 0;
 	float factorDesplazamientoZ = 0;
