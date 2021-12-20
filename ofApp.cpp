@@ -182,6 +182,7 @@ void ofApp::guardarPresetConfiguracion() {
                 std::string nombreParametro = std::string(parametrosValidos[vinculaciones[i].parametrosAfectados[j].parametroAfectado]);
                 XML.addValue("NOMBRE", nombreParametro);
                 XML.addValue("SUAVIDAD", vinculaciones[i].parametrosAfectados[j].amplificacion);
+                XML.addValue("CAPA", vinculaciones[i].parametrosAfectados[j].capa);
                 XML.popTag();
             }
             XML.popTag();
@@ -190,16 +191,34 @@ void ofApp::guardarPresetConfiguracion() {
         XML.popTag();
         XML.addTag("FACTORES_FEEDBACK");
         XML.pushTag("FACTORES_FEEDBACK");
+        for (int capa=1; capa<3; capa++) {
+            XML.addTag("CAPA_"+std::to_string(capa));
+            XML.pushTag("CAPA_"+std::to_string(capa));
+            int i = 0;
+            for (const auto& [nombre, valor] : feedbackVinculaciones[capa]) {
+                XML.addTag("FACTOR");
+                XML.pushTag("FACTOR", i);
+                // std::string nombreStr = std::string(nombre);
+                XML.addValue("NOMBRE", nombre);
+                XML.addValue("VALOR", valor); //feedbackVinculaciones[1][nombreStr]);
+                XML.popTag();
+                i += 1;
+            }
+            XML.popTag();
+        }
+        XML.addTag("GENERAL");
+        XML.pushTag("GENERAL");
         int i = 0;
-        for (const char* nombre : parametrosValidos) {
+        for (const auto& [nombre, valor] : feedbackVinculacionesGeneral) {
             XML.addTag("FACTOR");
             XML.pushTag("FACTOR", i);
-            std::string nombreStr = std::string(nombre);
-            XML.addValue("NOMBRE", nombreStr);
-            XML.addValue("VALOR", feedbackVinculaciones[1][nombreStr]);
+            // std::string nombreStr = std::string(nombre);
+            XML.addValue("NOMBRE", nombre);
+            XML.addValue("VALOR", valor); //feedbackVinculaciones[1][nombreStr]);
             XML.popTag();
             i += 1;
         }
+        XML.popTag();
         XML.popTag();
         XML.saveFile();
     }
@@ -240,6 +259,7 @@ void ofApp::cargarPresetConfiguracion() {
                             int ind = distance(parametrosValidos, find(parametrosValidos, parametrosValidos+n, XML.getValue("NOMBRE", "")));
                             pAfectado.parametroAfectado = ind;
                             pAfectado.amplificacion = XML.getValue("SUAVIDAD", 0.0);
+                            pAfectado.capa = XML.getValue("CAPA", 0);
                             nuevaVinculacion.parametrosAfectados.push_back(pAfectado);
                             XML.popTag();
                         }
@@ -254,13 +274,28 @@ void ofApp::cargarPresetConfiguracion() {
 
         // Ahora vamos a cargar los factores de feedback
         XML.pushTag("FACTORES_FEEDBACK");
+        for (int capa=1; capa<3; capa++) {
+            XML.addTag("CAPA_"+std::to_string(capa));
+            XML.pushTag("CAPA_"+std::to_string(capa));
+            int cantFactores = XML.getNumTags("FACTOR");
+            for (int i=0; i<cantFactores; ++i) {
+                XML.pushTag("FACTOR", i);
+                std::string nombreFactor = XML.getValue("NOMBRE", "");
+                feedbackVinculaciones[capa][nombreFactor] = XML.getValue("VALOR", 0.0);
+                XML.popTag();
+            }
+            XML.popTag();
+        }
+        XML.pushTag("GENERAL");
         int cantFactores = XML.getNumTags("FACTOR");
         for (int i=0; i<cantFactores; ++i) {
             XML.pushTag("FACTOR", i);
             std::string nombreFactor = XML.getValue("NOMBRE", "");
-            feedbackVinculaciones[1][nombreFactor] = XML.getValue("VALOR", 0.0);
+            feedbackVinculacionesGeneral[nombreFactor] = XML.getValue("VALOR", 0.0);
             XML.popTag();
         }
+        XML.popTag();
+    
         // Imprimo todo para corroborar:
         for (vinculacion v : vinculaciones) {
             std::cout << "Vinculacion - " << v.indEntrada <<" - " << v.entrada << " - " << v.indEntrada << "\n";
