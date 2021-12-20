@@ -9,40 +9,36 @@ void ofApp::setup(){
     // Setup GUI - Video
     parametrosManejadorVideo.setup("Manejo de video");
     cargarVideoButton.addListener(this, &ofApp::cargarVideoButtonPressed);
-    parametrosManejadorVideo.add(nombreVideoTxtInput.setup("Nombre video:", "video2.mp4"));
+    parametrosManejadorVideo.add(nombreVideoTxtInput.setup("Nombre video:", "video.m4v"));
     parametrosManejadorVideo.add(cargarVideoButton.setup("Cargar video"));
     guardarConfiguracion.addListener(this, &ofApp::guardarPresetConfiguracion);
     cargarConfiguracion.addListener(this, &ofApp::cargarPresetConfiguracion);
     parametrosManejadorVideo.add(guardarConfiguracion.setup("Guardar configuracion (tecla s)"));
     parametrosManejadorVideo.add(cargarConfiguracion.setup("Cargar configuracion (tecla l)"));
-    traslacionX.addListener(this, &ofApp::actualizarTraslacionVideo);
-    traslacionY.addListener(this, &ofApp::actualizarTraslacionVideo);
-    traslacionZ.addListener(this, &ofApp::actualizarTraslacionVideo);
-    parametrosManejadorVideo.add(traslacionX.set("Traslacion X", 0, -1000, 1000));
-    parametrosManejadorVideo.add(traslacionY.set("Traslacion Y", 0, -1000, 1000));
-    parametrosManejadorVideo.add(traslacionZ.set("Traslacion Z", 0, -1000, 1000));  
+
     // Setup GUI - Figuras y Smoothing
     sizeFigura.addListener(this, &ofApp::sizeFiguraChanged);
     profundidad.addListener(this, &ofApp::profundidadChanged);
-    profundidad2.addListener(this, &ofApp::profundidadChanged);
     cubosButton.addListener(this, &ofApp::cubosButtonPressed);
     prismasButton.addListener(this, &ofApp::prismasButtonPressed);
     esferasButton.addListener(this, &ofApp::esferasButtonPressed);
     factorSmoothingSlider.addListener(this, &ofApp::factorSmoothingChanged);
     factorColorSmoothingSlider.addListener(this, &ofApp::factorColorSmoothingChanged);
     desordenInicialSlider.addListener(this, &ofApp::desordenInicialSliderChanged);
-    parametrosAtributosFigura.setup("Figuras, Smoothing y otros");
+
+    parametrosAtributosFigura.setup("VIDEO 1 - Figuras, Smoothing y otros");
+
+    parametrosAtributosFigura.add(sizeFigura.setup("Tamano figura", 8, 2, 32));
+    parametrosAtributosFigura.add(profundidad.set("Profundidad maxima", 0, -1000, 1000));
+    parametrosAtributosFigura.add(factorSmoothingSlider.setup("Velocidad smooth movimiento", 0.5, 0.01, 1));
+    parametrosAtributosFigura.add(factorColorSmoothingSlider.setup("Velocidad smooth color", 0.5, 0.01, 1));
+    parametrosAtributosFigura.add(desordenInicialSlider.setup("Desorden inicial", 0, 0, 10));
+
     parametrosTipoFigura.setup("Tipo de figura");
     parametrosTipoFigura.add(cubosButton.setup("Cubos"));
     parametrosTipoFigura.add(prismasButton.setup("Prismas"));
     parametrosTipoFigura.add(esferasButton.setup("Esferas"));
     parametrosAtributosFigura.add(&parametrosTipoFigura);
-    parametrosAtributosFigura.add(sizeFigura.setup("Tamano figura", 8, 2, 32));
-    parametrosAtributosFigura.add(profundidad.set("Profundidad maxima", 0, -1000, 1000));
-    parametrosAtributosFigura.add(factorSmoothingSlider.setup("Velocidad smooth movimiento", 0.5, 0.01, 1));
-    parametrosAtributosFigura.add(factorColorSmoothingSlider.setup("Velocidad smooth color", 0.5, 0.01, 1));
-    parametrosAtributosFigura.add(profundidad2.set("Profundidad maxima 2", 0, -1000, 1000));
-    parametrosAtributosFigura.add(desordenInicialSlider.setup("Desorden inicial", 0, 0, 10));
 
     parametrosFactorTamanoPorBrillo.setup("Parametros tamano segun brillo");
     parametrosFactorTamanoPorBrillo.add(tamanoPorBrillo.setup("Tamano segun brillo", false));
@@ -57,25 +53,77 @@ void ofApp::setup(){
     parametrosNavegacion.add(navX.set("Eje X", 100, -1500, 3000));
     parametrosNavegacion.add(navY.set("Eje Y", 100, -1500, 3000));
     parametrosNavegacion.add(navZ.set("Eje Z", 100, -1500, 3000));
+
+    // Setup GUI - Video 2
+    parametrosVideo2.setup("Parametros para Video 2");
+
+    cargarVideoButton2.addListener(this, &ofApp::cargarVideoButtonPressed2);
+    parametrosManejadorVideo2.add(nombreVideoTxtInput2.setup("Nombre video:", "video.mp4"));
+    parametrosManejadorVideo2.add(cargarVideoButton2.setup("Cargar video"));
+    parametrosVideo2.add(&parametrosManejadorVideo2);
+ 
+    parametrosVideo2.add(sizeFigura2.setup("Tamano figura", 8, 2, 32));
+    parametrosVideo2.add(profundidad2.set("Profundidad maxima", 0, -1000, 1000));
+    parametrosVideo2.add(factorSmoothingSlider2.setup("Velocidad smooth movimiento", 0.5, 0.01, 1));
+    parametrosVideo2.add(factorColorSmoothingSlider2.setup("Velocidad smooth color", 0.5, 0.01, 1));
+    parametrosVideo2.add(desordenInicialSlider2.setup("Desorden inicial", 0, 0, 10));
+
+    traslacionX.addListener(this, &ofApp::actualizarTraslacionVideo);
+    traslacionY.addListener(this, &ofApp::actualizarTraslacionVideo);
+    traslacionZ.addListener(this, &ofApp::actualizarTraslacionVideo);
+
+    sizeFigura2.addListener(this, &ofApp::sizeFiguraChanged);
+    profundidad2.addListener(this, &ofApp::profundidadChanged2);
+    cubosButton2.addListener(this, &ofApp::cubosButtonPressed2);
+    prismasButton2.addListener(this, &ofApp::prismasButtonPressed2);
+    esferasButton2.addListener(this, &ofApp::esferasButtonPressed2);
+    factorSmoothingSlider2.addListener(this, &ofApp::factorSmoothingChanged2);
+    factorColorSmoothingSlider2.addListener(this, &ofApp::factorColorSmoothingChanged2);
+    desordenInicialSlider2.addListener(this, &ofApp::desordenInicialSliderChanged);
+
+    parametrosTipoFigura2.setup("Tipo de figura");
+    parametrosTipoFigura2.add(cubosButton2.setup("Cubos"));
+    parametrosTipoFigura2.add(prismasButton2.setup("Prismas"));
+    parametrosTipoFigura2.add(esferasButton2.setup("Esferas"));
+    parametrosVideo2.add(&parametrosTipoFigura2);
+
+
+    //Traslacion video 2
+    parametrosVideo2.add(traslacionX.set("Traslacion X", 0, -1000, 1000));
+    parametrosVideo2.add(traslacionY.set("Traslacion Y", 0, -1000, 1000));
+    parametrosVideo2.add(traslacionZ.set("Traslacion Z", 1, -1000, 1000));  
+
     
     gui.setup();
     gui.setSize(480, 600);
+    gui.add(&parametrosNavegacion);    
     gui.add(&parametrosManejadorVideo);
     gui.add(&parametrosAtributosFigura);
-    gui.add(&parametrosNavegacion);
-    
+    gui.add(&parametrosVideo2);
+
 
 
     // Gui de vinculaciones 
     vinculacionesGui.setup();
     // Cargar el video
     cargarVideo();
+    cargarVideo2();
+
+    //Ajustar camara
+    navX = videoPlayer.getWidth() / 2;
+    navY = videoPlayer.getHeight() / 2;
+    navZ = 1500;
+
+
 
     // Setup de sistema de figuras
     setupSistemaFiguras();
 
 	ss.setup(1848, 1016, ofxScreenSetup::WINDOWED);
     // ss.cycleToNextScreenMode();
+
+    ofDisableArbTex();
+	// texture.load("u.jpeg");
 }
 
 void ofApp::setupChanged(ofxScreenSetup::ScreenSetupArg &arg){
@@ -95,6 +143,15 @@ void ofApp::cargarVideoButtonPressed() {
     }
 }
 
+void ofApp::cargarVideoButtonPressed2() {
+    ofFileDialogResult res;
+    res = ofSystemLoadDialog( "Cargar preset de configuracion" );
+    if ( res.bSuccess ) {
+        nombreVideoTxtInput2 = res.filePath;
+        cargarVideo2();
+    }
+}
+
 void ofApp::guardarPresetConfiguracion() {
     ofFileDialogResult res;
     res = ofSystemSaveDialog("preset.xml", "Guardar preset de configuracion");
@@ -106,8 +163,10 @@ void ofApp::guardarPresetConfiguracion() {
         XML.removeTag("CONFIGURACION"); // Eliminamos el TAG configuracion porque lo vamos a volver a generar
         XML.addTag("CONFIGURACION");
         XML.pushTag("CONFIGURACION");
-        int tagNum = XML.addTag("LINK_VIDEO");
-        XML.setValue("LINK_VIDEO", (string)nombreVideoTxtInput, tagNum);
+        int tagNum = XML.addTag("LINK_VIDEO_1");
+        XML.setValue("LINK_VIDEO_1", (string)nombreVideoTxtInput, tagNum);
+        tagNum = XML.addTag("LINK_VIDEO_2");
+        XML.setValue("LINK_VIDEO_2", (string)nombreVideoTxtInput2, tagNum);
         XML.addTag("VINCULACIONES");
         XML.pushTag("VINCULACIONES");
         // Este seria el loop para cada vinculacion vvv
@@ -156,7 +215,8 @@ void ofApp::cargarPresetConfiguracion() {
         XML.loadFile(res.filePath);
         XML.pushTag("CONFIGURACION");
         // Primero cargamos el video
-        nombreVideoTxtInput = XML.getValue("LINK_VIDEO", "");
+        nombreVideoTxtInput = XML.getValue("LINK_VIDEO_1", "");
+        nombreVideoTxtInput2 = XML.getValue("LINK_VIDEO_2", "");
         // Ahora vamos a cargar las vinculaciones
         vinculaciones.clear();
         XML.pushTag("VINCULACIONES");
@@ -211,12 +271,10 @@ void ofApp::cargarPresetConfiguracion() {
         }
 
         XML.popTag();
-        // Cargamos el video
-        videoPlayer.setPixelFormat(OF_PIXELS_RGBA);
-        videoPlayer.load(nombreVideoTxtInput);
-        videoPlayer.setVolume(0);
-        videoPlayer.setUseTexture(true);
-        videoPlayer.play();
+
+        // Cargamos los videos
+        cargarVideo();
+        cargarVideo2();
     
         // Inicializamos sistema de figuras para el video.
         setupSistemaFiguras();
@@ -232,7 +290,7 @@ void ofApp::setupSistemaFiguras() {
         std::vector<Figura> fila;
         for (int j = 0; j < columnas; j++) {
             ofVec3f posicion = ofVec3f(j*sizeFigura+(random()/(RAND_MAX/((int)desordenInicialSlider+1))), i*sizeFigura+(random()/(RAND_MAX/((int)desordenInicialSlider+1))), 0);
-            Figura fig = Figura(posicion, sizeFigura, profundidad, (float)factorSmoothingSlider, this->tipoFigura);
+            Figura fig = Figura(posicion, sizeFigura, profundidad, (float)factorSmoothingSlider, this->tipoFigura, 0, 0, 0);
             fila.push_back(fig);
         }
         auxiliar.push_back(fila);
@@ -251,13 +309,13 @@ void ofApp::setupSistemaFiguras() {
     ////////////////////// SET UP SISTEMAS DE FIGURAS 2 ////////////////////////////
         std::cout << "[i] Setup de sistema de Figuras\n";
     std::vector<std::vector<Figura>> auxiliar2;
-    columnas2 = videoPlayer2.getWidth()/sizeFigura;
-    filas2 = videoPlayer2.getHeight()/sizeFigura;
+    columnas2 = videoPlayer2.getWidth()/sizeFigura2;
+    filas2 = videoPlayer2.getHeight()/sizeFigura2;
     for (int i = 0; i < filas2; i++) {
         std::vector<Figura> fila2;
         for (int j = 0; j < columnas2; j++) {
-            ofVec3f posicion2 = ofVec3f( j*sizeFigura+(random()/(RAND_MAX/((int)desordenInicialSlider+1))),i*sizeFigura+(random()/(RAND_MAX/((int)desordenInicialSlider+1))), 0);
-            Figura fig2 = Figura(posicion2, sizeFigura, profundidad2, (float)factorSmoothingSlider, this->tipoFigura);
+            ofVec3f posicion2 = ofVec3f(j*sizeFigura2+(random()/(RAND_MAX/((int)desordenInicialSlider2+1))),i*sizeFigura2+(random()/(RAND_MAX/((int)desordenInicialSlider2+1))), 0);
+            Figura fig2 = Figura(posicion2, sizeFigura2, profundidad2, (float)factorSmoothingSlider2, this->tipoFigura, this->traslacionX, this->traslacionY, this->traslacionZ);
             fila2.push_back(fig2);
         }
         auxiliar2.push_back(fila2);
@@ -287,6 +345,9 @@ void ofApp::actualizarProfundidad() {
             sistemaFiguras[i][j].updateProfundidadMaxima(profundidad);
         }
     }
+}
+
+void ofApp::actualizarProfundidad2() {
     for (int i = 0; i < filas2; i++) {
         for (int j = 0; j < columnas2; j++) {
             sistemaFiguras2[i][j].updateProfundidadMaxima(profundidad2);
@@ -302,10 +363,26 @@ void ofApp::actualizarTipoFigura(Figura::enumTipoFigura tipoFigura) {
     }
 }
 
+void ofApp::actualizarTipoFigura2(Figura::enumTipoFigura tipoFigura2) {
+    for (int i = 0; i < filas2; i++) {
+        for (int j = 0; j < columnas2; j++) {
+            sistemaFiguras2[i][j].updateTipoFigura(tipoFigura2);
+        }
+    }
+}
+
 void ofApp::factorSmoothingChanged(float &factor) {
     for (int i = 0; i < filas; i++) {
         for (int j = 0; j < columnas; j++) {
             sistemaFiguras[i][j].updateFactorSmoothing(factor);
+        }
+    }
+}
+
+void ofApp::factorSmoothingChanged2(float &factor) {
+    for (int i = 0; i < filas2; i++) {
+        for (int j = 0; j < columnas2; j++) {
+            sistemaFiguras2[i][j].updateFactorSmoothing(factor);
         }
     }
 }
@@ -318,10 +395,22 @@ void ofApp::profundidadChanged(int &profundidad) {
     actualizarProfundidad();
 }
 
+void ofApp::profundidadChanged2(int &profundidad) {
+    actualizarProfundidad2();
+}
+
 void ofApp::factorColorSmoothingChanged(float &factor) {
     for (int i = 0; i < filas; i++) {
         for (int j = 0; j < columnas; j++) {
             sistemaFiguras[i][j].updateFactorColorSmoothing(factor);
+        }
+    }
+}
+
+void ofApp::factorColorSmoothingChanged2(float &factor) {
+    for (int i = 0; i < filas2; i++) {
+        for (int j = 0; j < columnas2; j++) {
+            sistemaFiguras2[i][j].updateFactorColorSmoothing(factor);
         }
     }
 }
@@ -345,20 +434,34 @@ void ofApp::esferasButtonPressed() {
     this->actualizarTipoFigura(Figura::enumTipoFigura::ESFERA);
 }
 
+void ofApp::cubosButtonPressed2() {
+    this->tipoFigura2 = Figura::enumTipoFigura::CUBO;
+    this->actualizarTipoFigura2(Figura::enumTipoFigura::CUBO);
+}
+
+void ofApp::prismasButtonPressed2() {
+    this->tipoFigura2 = Figura::enumTipoFigura::PRISMA;
+    this->actualizarTipoFigura2(Figura::enumTipoFigura::PRISMA);
+}
+
+void ofApp::esferasButtonPressed2() {
+    this->tipoFigura2 = Figura::enumTipoFigura::ESFERA;
+    this->actualizarTipoFigura2(Figura::enumTipoFigura::ESFERA);
+}
+
 void ofApp::cargarVideo() {
     videoPlayer.setPixelFormat(OF_PIXELS_RGBA);
     videoPlayer.load(nombreVideoTxtInput);
     videoPlayer.setVolume(0);
     videoPlayer.setUseTexture(true);
     videoPlayer.play();
-    
-    navX = videoPlayer.getWidth() / 2;
-    navY = videoPlayer.getHeight() / 2;
-    navZ = 1500;
 
-    //2nd video
+    setupSistemaFiguras();
+}
+
+void ofApp::cargarVideo2() {
     videoPlayer2.setPixelFormat(OF_PIXELS_RGBA);
-    videoPlayer2.load("video.mp4");
+    videoPlayer2.load(nombreVideoTxtInput2);
     videoPlayer2.setVolume(0);
     videoPlayer2.setUseTexture(true);
     videoPlayer2.play();
@@ -543,7 +646,7 @@ void ofApp::draw(){
     }
 
 
-    ofBackground(ofColor(0,0,0));
+    ofBackground(ofColor(100,0,0));
     navX = navX;
     navY = navY;
     navZ = navZ;
@@ -577,6 +680,24 @@ void ofApp::draw(){
     for (Figura* f : refsSistemaFiguras2) {
         f->draw_sin_vinculacion(tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
     }
+
+    //Setting video 1 texture to plane
+
+    texture.setFromPixels(videoPlayer.getPixels());
+
+    plane.resizeToTexture( texture.getTexture() );
+
+
+    texture.getTexture().bind();
+    plane.setPosition(	1000, 300, 50);
+
+    // material.begin();
+    // ofFill();
+    plane.draw();
+    // material.end();
+
+    // texture.getTexture().unbind();
+
     ofDisableDepthTest();
     cam.end();
     if (!hideGUI) {

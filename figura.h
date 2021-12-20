@@ -17,7 +17,7 @@ class Figura{
 		Figura(ofVec3f pos, int tamano);
 		Figura(ofVec3f pos, int tamano, int profundidad);
     Figura(ofVec3f pos, int tamano, int profundidad, float smooth);
-    Figura(ofVec3f pos, int tamano, int profundidad, float smooth, enumTipoFigura tipoFigura);
+    Figura(ofVec3f pos, int tamano, int profundidad, float smooth, enumTipoFigura tipoFigura, int traslacionX, int traslacionY, int traslacionZ);
 		
 		void updateProfundidadMaxima(int prof);
     void updateTamano(int tamano);

@@ -22,7 +22,10 @@ Figura::Figura(ofVec3f pos, int tamano, int rangoProfundidad, float factorSmooth
   this->factorSmoothing = factorSmoothing;
 }
 
-Figura::Figura(ofVec3f pos, int tamano, int rangoProfundidad, float factorSmoothing, enumTipoFigura tipoFigura) {
+Figura::Figura(ofVec3f pos, int tamano, int rangoProfundidad, float factorSmoothing, enumTipoFigura tipoFigura, int traslacionX, int traslacionY, int traslacionZ) {
+  this->traslacionPosicionX = traslacionX;
+  this->traslacionPosicionY = traslacionY;
+  this->traslacionPosicionZ = traslacionZ;
   this->posActual = pos;  
   this->tamano = tamano;
   this->rangoProfundidad = rangoProfundidad;

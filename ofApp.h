@@ -40,7 +40,6 @@ class ofApp : public ofBaseApp{
 	ofVideoPlayer videoPlayer;
 
 	ofParameter<int> profundidad = 100;
-	ofParameter<int> profundidad2 = 100;
 
 	int zoom = 300;
 	ofPixels framePixels;
@@ -51,7 +50,7 @@ class ofApp : public ofBaseApp{
 	// Para la traslacion de los videos
 	ofParameter<int> traslacionX = 0;
 	ofParameter<int> traslacionY = 0;
-	ofParameter<int> traslacionZ = 0;
+	ofParameter<int> traslacionZ = 20;
 	void actualizarTraslacionVideo(int &aux);
 
 	bool hideGUI = false;
@@ -101,6 +100,42 @@ class ofApp : public ofBaseApp{
 	ofParameter<float> navZ;
 	ofxToggle mouseNav;
 	ofxToggle lookAtCenter;
+
+	// Grupo parametros video 2
+	ofxGuiGroup parametrosVideo2;
+
+	// Grupo Parametros carga de video 2 y guardar/cargar configuracion
+	ofxGuiGroup parametrosManejadorVideo2;
+	ofxLabel nombreVideoTxtInput2;
+	ofxButton cargarVideoButton2;
+	void cargarVideoButtonPressed2();
+	// ofxButton guardarConfiguracion2;
+	// ofxButton cargarConfiguracion2;
+
+	ofParameter<int> profundidad2 = 100;
+	void profundidadChanged2(int &profundidad2);
+	void actualizarProfundidad2();
+
+	ofxIntSlider sizeFigura2;
+	// void sizeFiguraChanged2(int &sizeFigura2);
+
+	ofxFloatSlider factorSmoothingSlider2;
+	void factorSmoothingChanged2(float &factor);
+	ofxFloatSlider factorColorSmoothingSlider2;
+	void factorColorSmoothingChanged2(float &factor);
+	ofxIntSlider desordenInicialSlider2;
+	// void desordenInicialSliderChanged(int &desorden);
+
+	ofxGuiGroup parametrosTipoFigura2;
+	
+	ofxButton cubosButton2;
+	void cubosButtonPressed2();
+	ofxButton prismasButton2;
+	void prismasButtonPressed2();
+	ofxButton esferasButton2;
+	void esferasButtonPressed2();
+	void actualizarTipoFigura2(Figura::enumTipoFigura);
+
 
 	// Sistema de figuras independientes
 	int columnas;
@@ -185,11 +220,17 @@ class ofApp : public ofBaseApp{
 	// ##############################
 	ofVideoPlayer videoPlayer2;
 	ofPixels framePixels2;
+	
 	// Sistema de figuras independientes 2
+	void cargarVideo2();
 	int columnas2;
 	int filas2;
 	Figura::enumTipoFigura tipoFigura2 = Figura::enumTipoFigura::CUBO;
 	std::vector<std::vector<Figura>> sistemaFiguras2;
 	std::vector<Figura*> refsSistemaFiguras2;
 
+	//Video bypass
+	ofPlanePrimitive plane;
+	ofImage texture;
+	ofMaterial material;
 };
