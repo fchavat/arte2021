@@ -50,6 +50,8 @@ void ofApp::setup(){
     parametrosNavegacion.setup("Parametros para navegar");
     parametrosNavegacion.add(mouseNav.setup("Navegar con mouse (M)", false));
     parametrosNavegacion.add(lookAtCenter.setup("Centrar visual al centro (C)", false));
+    parametrosNavegacion.add(bypass.setup("Bypass video 1", true));
+    parametrosNavegacion.add(showVideo2.setup("Show video 2", true));
     parametrosNavegacion.add(navX.set("Eje X", 100, -1500, 3000));
     parametrosNavegacion.add(navY.set("Eje Y", 100, -1500, 3000));
     parametrosNavegacion.add(navZ.set("Eje Z", 100, -1500, 3000));
@@ -72,14 +74,14 @@ void ofApp::setup(){
     traslacionY.addListener(this, &ofApp::actualizarTraslacionVideo);
     traslacionZ.addListener(this, &ofApp::actualizarTraslacionVideo);
 
-    sizeFigura2.addListener(this, &ofApp::sizeFiguraChanged);
+    sizeFigura2.addListener(this, &ofApp::sizeFiguraChanged2);
     profundidad2.addListener(this, &ofApp::profundidadChanged2);
     cubosButton2.addListener(this, &ofApp::cubosButtonPressed2);
     prismasButton2.addListener(this, &ofApp::prismasButtonPressed2);
     esferasButton2.addListener(this, &ofApp::esferasButtonPressed2);
     factorSmoothingSlider2.addListener(this, &ofApp::factorSmoothingChanged2);
     factorColorSmoothingSlider2.addListener(this, &ofApp::factorColorSmoothingChanged2);
-    desordenInicialSlider2.addListener(this, &ofApp::desordenInicialSliderChanged);
+    desordenInicialSlider2.addListener(this, &ofApp::desordenInicialSliderChanged2);
 
     parametrosTipoFigura2.setup("Tipo de figura");
     parametrosTipoFigura2.add(cubosButton2.setup("Cubos"));
@@ -118,12 +120,12 @@ void ofApp::setup(){
 
     // Setup de sistema de figuras
     setupSistemaFiguras();
+    setupSistemaFiguras2();
 
 	ss.setup(1848, 1016, ofxScreenSetup::WINDOWED);
     // ss.cycleToNextScreenMode();
 
     ofDisableArbTex();
-	// texture.load("u.jpeg");
 }
 
 void ofApp::setupChanged(ofxScreenSetup::ScreenSetupArg &arg){
@@ -313,6 +315,7 @@ void ofApp::cargarPresetConfiguracion() {
     
         // Inicializamos sistema de figuras para el video.
         setupSistemaFiguras();
+        setupSistemaFiguras2();
     }
 }
 
@@ -340,9 +343,10 @@ void ofApp::setupSistemaFiguras() {
         }
     }
     std::cout << "[i] Termino de configurar sistema de Figuras\n";
+}
 
-    ////////////////////// SET UP SISTEMAS DE FIGURAS 2 ////////////////////////////
-        std::cout << "[i] Setup de sistema de Figuras\n";
+void ofApp::setupSistemaFiguras2() {
+    std::cout << "[i] Setup de sistema de Figuras\n";
     std::vector<std::vector<Figura>> auxiliar2;
     columnas2 = videoPlayer2.getWidth()/sizeFigura2;
     filas2 = videoPlayer2.getHeight()/sizeFigura2;
@@ -426,6 +430,10 @@ void ofApp::sizeFiguraChanged(int &sizeFigura) {
     setupSistemaFiguras();
 }
 
+void ofApp::sizeFiguraChanged2(int &sizeFigura) {
+    setupSistemaFiguras2();
+}
+
 void ofApp::profundidadChanged(int &profundidad) {
     actualizarProfundidad();
 }
@@ -452,6 +460,10 @@ void ofApp::factorColorSmoothingChanged2(float &factor) {
 
 void ofApp::desordenInicialSliderChanged(int &desorden) {
     setupSistemaFiguras();
+}
+
+void ofApp::desordenInicialSliderChanged2(int &desorden) {
+    setupSistemaFiguras2();
 }
 
 void ofApp::cubosButtonPressed() {
@@ -501,7 +513,7 @@ void ofApp::cargarVideo2() {
     videoPlayer2.setUseTexture(true);
     videoPlayer2.play();
 
-    setupSistemaFiguras();
+    setupSistemaFiguras2();
 }
 
 //--------------------------------------------------------------
@@ -683,7 +695,7 @@ void ofApp::draw(){
     }
 
 
-    ofBackground(ofColor(100,0,0));
+    ofBackground(ofColor(0,0,0));
     navX = navX;
     navY = navY;
     navZ = navZ;
@@ -709,32 +721,40 @@ void ofApp::draw(){
 	// this uses depth information for occlusion
 	// rather than always drawing things on top of each other
     ofEnableDepthTest();
-    // Actualizamos color y dibujamos
-    for (Figura* f : refsSistemaFiguras) {
-        f->draw(this->factoresVinculaciones[1], tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
-    }
-    //2nd video
-    for (Figura* f : refsSistemaFiguras2) {
-        f->draw(this->factoresVinculaciones[2], tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
-        // f->draw_sin_vinculacion(tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
-    }
 
     //Setting video 1 texture to plane
-
+    plane.setPosition(	0, 0, 0);
     texture.setFromPixels(videoPlayer.getPixels());
-
     plane.resizeToTexture( texture.getTexture() );
 
+    if (bypass) {
+        ofPushMatrix();  
+            // rotacion del plano para que la textura este al derecho y traslacion para volver a la posicion   
+            ofRotateZDeg(180);  
+            ofTranslate(-videoPlayer.getWidth()/2, -videoPlayer.getHeight()/2,0); 
 
-    texture.getTexture().bind();
-    plane.setPosition(	1000, 300, 50);
+            texture.getTexture().bind();
 
-    // material.begin();
-    // ofFill();
-    plane.draw();
-    // material.end();
+            plane.draw();
 
-    // texture.getTexture().unbind();
+            texture.getTexture().unbind();
+        ofPopMatrix();  
+    } else {
+        //Dibujamos sistemas de figuras
+        for (Figura* f : refsSistemaFiguras) {
+            f->draw(this->factoresVinculaciones[1], tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
+        }
+    }
+
+    //2nd video
+    if (showVideo2) {
+        for (Figura* f : refsSistemaFiguras2) {
+            f->draw(this->factoresVinculaciones[2], tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
+            // f->draw_sin_vinculacion(tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
+        }
+    } 
+
+
 
     ofDisableDepthTest();
     cam.end();

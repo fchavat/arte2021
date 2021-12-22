@@ -30,6 +30,7 @@ class ofApp : public ofBaseApp{
 
 	void cargarVideo();
 	void setupSistemaFiguras();
+	void setupSistemaFiguras2();
 	void actualizarProfundidad();
 
 
@@ -100,6 +101,8 @@ class ofApp : public ofBaseApp{
 	ofParameter<float> navZ;
 	ofxToggle mouseNav;
 	ofxToggle lookAtCenter;
+	ofxToggle bypass;
+	ofxToggle showVideo2;
 
 	// Grupo parametros video 2
 	ofxGuiGroup parametrosVideo2;
@@ -117,14 +120,14 @@ class ofApp : public ofBaseApp{
 	void actualizarProfundidad2();
 
 	ofxIntSlider sizeFigura2;
-	// void sizeFiguraChanged2(int &sizeFigura2);
+	void sizeFiguraChanged2(int &sizeFigura2);
 
 	ofxFloatSlider factorSmoothingSlider2;
 	void factorSmoothingChanged2(float &factor);
 	ofxFloatSlider factorColorSmoothingSlider2;
 	void factorColorSmoothingChanged2(float &factor);
 	ofxIntSlider desordenInicialSlider2;
-	// void desordenInicialSliderChanged(int &desorden);
+	void desordenInicialSliderChanged2(int &desorden);
 
 	ofxGuiGroup parametrosTipoFigura2;
 	
@@ -251,5 +254,4 @@ class ofApp : public ofBaseApp{
 	//Video bypass
 	ofPlanePrimitive plane;
 	ofImage texture;
-	ofMaterial material;
 };
