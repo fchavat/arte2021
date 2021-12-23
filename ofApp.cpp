@@ -521,6 +521,7 @@ void ofApp::update(){
     videoPlayer.update();
     if (videoPlayer.isFrameNew()) {
         framePixels = videoPlayer.getPixels();
+        texture.setFromPixels(framePixels);
         // Ordenamos las referencias segun alpha para dibujar primero los mas opacos
         std::sort(refsSistemaFiguras.begin(), refsSistemaFiguras.end(), [](const Figura* lhs, const Figura* rhs) {
             return lhs->colorActual.a > rhs->colorActual.a;
@@ -720,14 +721,11 @@ void ofApp::draw(){
     cam.begin();    
 	// this uses depth information for occlusion
 	// rather than always drawing things on top of each other
-    ofEnableDepthTest();
-
-    //Setting video 1 texture to plane
-    plane.setPosition(	0, 0, 0);
-    texture.setFromPixels(videoPlayer.getPixels());
-    plane.resizeToTexture( texture.getTexture() );
 
     if (bypass) {
+        //Setting video 1 texture to plane
+        plane.setPosition(	0, 0, 0);
+        plane.resizeToTexture( texture.getTexture() );
         ofPushMatrix();  
             // rotacion del plano para que la textura este al derecho y traslacion para volver a la posicion   
             ofRotateZDeg(180);  
@@ -735,28 +733,30 @@ void ofApp::draw(){
 
             texture.getTexture().bind();
 
+            ofSetColor(255, 255, 255);
             plane.draw();
 
             texture.getTexture().unbind();
         ofPopMatrix();  
-    } else {
+    }
+     else {
         //Dibujamos sistemas de figuras
+        ofEnableDepthTest();
         for (Figura* f : refsSistemaFiguras) {
             f->draw(this->factoresVinculaciones[1], tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
         }
+        ofDisableDepthTest();
     }
 
-    //2nd video
+    // 2nd video
     if (showVideo2) {
+        ofEnableDepthTest();
         for (Figura* f : refsSistemaFiguras2) {
             f->draw(this->factoresVinculaciones[2], tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
             // f->draw_sin_vinculacion(tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
         }
+        ofDisableDepthTest();
     } 
-
-
-
-    ofDisableDepthTest();
     cam.end();
     if (!hideGUI) {
         gui.draw();
