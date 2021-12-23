@@ -94,10 +94,6 @@ void ofApp::setup(){
     parametrosVideo2.add(traslacionX.set("Traslacion X", 0, -1000, 1000));
     parametrosVideo2.add(traslacionY.set("Traslacion Y", 0, -1000, 1000));
     parametrosVideo2.add(traslacionZ.set("Traslacion Z", 1, -1000, 1000));  
-    parametrosVideo2.add(rotX.set("Rot X", 0, -360, 360));
-    parametrosVideo2.add(rotY.set("Rot Y", 0, -360, 360));
-    parametrosVideo2.add(rotZ.set("Rot Z", 0, -360, 360));
-
     
     gui.setup();
     gui.setSize(480, 600);
@@ -733,8 +729,6 @@ void ofApp::draw(){
         ofPushMatrix();  
             // rotacion del plano para que la textura este al derecho y traslacion para volver a la posicion   
             ofRotateXDeg(180);
-            // ofRotateYDeg(rotY);
-            // ofRotateZDeg(rotZ);  
             ofTranslate(videoPlayer.getWidth()/2, -videoPlayer.getHeight()/2,0); 
 
             texture.getTexture().bind();
