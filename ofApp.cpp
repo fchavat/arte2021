@@ -94,6 +94,9 @@ void ofApp::setup(){
     parametrosVideo2.add(traslacionX.set("Traslacion X", 0, -1000, 1000));
     parametrosVideo2.add(traslacionY.set("Traslacion Y", 0, -1000, 1000));
     parametrosVideo2.add(traslacionZ.set("Traslacion Z", 1, -1000, 1000));  
+    parametrosVideo2.add(rotX.set("Rot X", 0, -360, 360));
+    parametrosVideo2.add(rotY.set("Rot Y", 0, -360, 360));
+    parametrosVideo2.add(rotZ.set("Rot Z", 0, -360, 360));
 
     
     gui.setup();
@@ -722,14 +725,17 @@ void ofApp::draw(){
 	// this uses depth information for occlusion
 	// rather than always drawing things on top of each other
 
+    ofEnableDepthTest();
     if (bypass) {
         //Setting video 1 texture to plane
         plane.setPosition(	0, 0, 0);
         plane.resizeToTexture( texture.getTexture() );
         ofPushMatrix();  
             // rotacion del plano para que la textura este al derecho y traslacion para volver a la posicion   
-            ofRotateZDeg(180);  
-            ofTranslate(-videoPlayer.getWidth()/2, -videoPlayer.getHeight()/2,0); 
+            ofRotateXDeg(180);
+            // ofRotateYDeg(rotY);
+            // ofRotateZDeg(rotZ);  
+            ofTranslate(videoPlayer.getWidth()/2, -videoPlayer.getHeight()/2,0); 
 
             texture.getTexture().bind();
 
@@ -741,22 +747,19 @@ void ofApp::draw(){
     }
      else {
         //Dibujamos sistemas de figuras
-        ofEnableDepthTest();
         for (Figura* f : refsSistemaFiguras) {
             f->draw(this->factoresVinculaciones[1], tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
         }
-        ofDisableDepthTest();
     }
 
     // 2nd video
     if (showVideo2) {
-        ofEnableDepthTest();
         for (Figura* f : refsSistemaFiguras2) {
             f->draw(this->factoresVinculaciones[2], tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
             // f->draw_sin_vinculacion(tamanoPorBrillo, tamanoPorBrilloMinimo, tamanoPorBrilloMaximo);
         }
-        ofDisableDepthTest();
     } 
+    ofDisableDepthTest();
     cam.end();
     if (!hideGUI) {
         gui.draw();

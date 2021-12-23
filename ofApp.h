@@ -254,4 +254,10 @@ class ofApp : public ofBaseApp{
 	//Video bypass
 	ofPlanePrimitive plane;
 	ofImage texture;
+
+
+	ofParameter<int> rotX;
+	ofParameter<int> rotY;
+	ofParameter<int> rotZ;
+
 };
